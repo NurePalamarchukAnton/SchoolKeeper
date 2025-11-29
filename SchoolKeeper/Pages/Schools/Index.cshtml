@@ -1,0 +1,50 @@
+@page
+@model SchoolKeeper.Pages.Schools.IndexModel
+@{
+    ViewData["Title"] = "Школи";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">Школи, підключені до системи</h1>
+
+    @if (Model.Schools.Any())
+    {
+        <div class="row">
+            @foreach (var school in Model.Schools)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">@school.Name</h5>
+                            @if (!string.IsNullOrEmpty(school.Address))
+                            {
+                                <p class="card-text">
+                                    <strong>Адреса:</strong> @school.Address
+                                </p>
+                            }
+                            @if (!string.IsNullOrEmpty(school.Region))
+                            {
+                                <p class="card-text">
+                                    <strong>Регіон:</strong> @school.Region
+                                </p>
+                            }
+                            @if (!string.IsNullOrEmpty(school.ContactNumber))
+                            {
+                                <p class="card-text">
+                                    <strong>Контактний номер:</strong> @school.ContactNumber
+                                </p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <p class="mb-0">На даний момент немає шкіл, підключених до системи.</p>
+        </div>
+    }
+</div>
+

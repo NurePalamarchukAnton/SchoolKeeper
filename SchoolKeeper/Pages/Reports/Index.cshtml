@@ -1,0 +1,45 @@
+@page
+@model SchoolKeeper.Pages.Reports.IndexModel
+@{
+    ViewData["Title"] = "Звіти";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Звіти</h1>
+        @if (Model.CanCreate)
+        {
+            <a asp-page="Create" class="btn btn-primary">Створити звіт</a>
+        }
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Період початку</th>
+                    <th>Період кінця</th>
+                    <th>Створено</th>
+                    <th>Автор</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var report in Model.Reports)
+                {
+                    <tr>
+                        <td>@report.PeriodStart.ToString("dd.MM.yyyy")</td>
+                        <td>@report.PeriodEnd.ToString("dd.MM.yyyy")</td>
+                        <td>@report.GeneratedOn.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@report.GeneratorName</td>
+                        <td>
+                            <a asp-page="Details" asp-route-id="@report.Id" class="btn btn-sm btn-info">Деталі</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+

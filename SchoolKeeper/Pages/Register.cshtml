@@ -1,0 +1,163 @@
+@page
+@model SchoolKeeper.Pages.RegisterModel
+@{
+    ViewData["Title"] = "Реєстрація";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Реєстрація</h2>
+                
+                <div id="errorAlert" class="alert alert-danger" role="alert" style="display: none;">
+                    <span id="errorMessage"></span>
+                </div>
+
+                <div id="successAlert" class="alert alert-success" role="alert" style="display: none;">
+                    <span id="successMessage"></span>
+                </div>
+
+                <form id="registerForm">
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Повне ім'я</label>
+                        <input type="text" class="form-control" id="fullName" name="fullName" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Підтвердження пароля</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="schoolId" class="form-label">Школа</label>
+                        <select class="form-select" id="schoolId" name="schoolId" required>
+                            <option value="">Оберіть школу</option>
+                            @foreach (var school in Model.Schools)
+                            {
+                                <option value="@school.Id">@school.Name</option>
+                            }
+                        </select>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Роль</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="0">Адміністратор</option>
+                            <option value="1">Охорона</option>
+                            <option value="2">Вчитель</option>
+                            <option value="3">Батько</option>
+                            <option value="4">Студент</option>
+                        </select>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" id="registerBtn">Зареєструватися</button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3">
+                    <p>Вже маєте акаунт? <a asp-page="/Login">Увійти</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const schoolId = parseInt(document.getElementById('schoolId').value);
+            const role = parseInt(document.getElementById('role').value);
+            
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            const successAlert = document.getElementById('successAlert');
+            const successMessage = document.getElementById('successMessage');
+            const registerBtn = document.getElementById('registerBtn');
+            
+            // Валідація паролів
+            if (password !== confirmPassword) {
+                errorMessage.textContent = 'Паролі не співпадають.';
+                errorAlert.style.display = 'block';
+                successAlert.style.display = 'none';
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorMessage.textContent = 'Пароль повинен містити мінімум 6 символів.';
+                errorAlert.style.display = 'block';
+                successAlert.style.display = 'none';
+                return;
+            }
+            
+            // Приховуємо помилки
+            errorAlert.style.display = 'none';
+            successAlert.style.display = 'none';
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'Реєстрація...';
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        fullName, 
+                        email, 
+                        password, 
+                        schoolId, 
+                        role 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.statusCode === 200) {
+                    // Показуємо успіх
+                    successMessage.textContent = data.message || 'Реєстрація успішна! Перенаправлення на сторінку входу...';
+                    successAlert.style.display = 'block';
+                    
+                    // Перенаправляємо на сторінку входу через 2 секунди
+                    setTimeout(() => {
+                        window.location.href = '/Login';
+                    }, 2000);
+                } else {
+                    // Показуємо помилку
+                    errorMessage.textContent = data.message || 'Помилка реєстрації. Спробуйте ще раз.';
+                    errorAlert.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Помилка з\'єднання з сервером.';
+                errorAlert.style.display = 'block';
+            } finally {
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Зареєструватися';
+            }
+        });
+    </script>
+}
+

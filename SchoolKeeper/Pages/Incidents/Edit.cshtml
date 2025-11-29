@@ -1,0 +1,54 @@
+@page
+@model SchoolKeeper.Pages.Incidents.EditModel
+@{
+    ViewData["Title"] = "Редагувати інцидент";
+}
+
+<div class="container">
+    <h2>Редагувати інцидент</h2>
+
+    <form method="post">
+        <div class="mb-3">
+            <label asp-for="Incident.DeviceId" class="form-label">Пристрій</label>
+            <select asp-for="Incident.DeviceId" asp-items="Model.Devices" class="form-select">
+                <option value="">-- Оберіть пристрій --</option>
+            </select>
+            <span asp-validation-for="Incident.DeviceId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Incident.IncidentType" class="form-label">Тип інциденту</label>
+            <input asp-for="Incident.IncidentType" class="form-control" value="@Model.CurrentIncident.IncidentType" />
+            <span asp-validation-for="Incident.IncidentType" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Incident.Severity" class="form-label">Серйозність</label>
+            <select asp-for="Incident.Severity" asp-items="Model.Severities" class="form-select">
+                <option value="">-- Оберіть серйозність --</option>
+            </select>
+            <span asp-validation-for="Incident.Severity" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Incident.Description" class="form-label">Опис</label>
+            <textarea asp-for="Incident.Description" class="form-control" rows="3">@Model.CurrentIncident.Description</textarea>
+            <span asp-validation-for="Incident.Description" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Incident.Status" class="form-label">Статус</label>
+            <select asp-for="Incident.Status" asp-items="Model.Statuses" class="form-select">
+                <option value="">-- Оберіть статус --</option>
+            </select>
+            <span asp-validation-for="Incident.Status" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Зберегти</button>
+            <a asp-page="Index" class="btn btn-secondary">Скасувати</a>
+        </div>
+    </form>
+</div>
+
+

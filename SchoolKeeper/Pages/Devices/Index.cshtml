@@ -1,0 +1,52 @@
+@page
+@model SchoolKeeper.Pages.Devices.IndexModel
+@{
+    ViewData["Title"] = "Пристрої";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Пристрої</h1>
+        @if (Model.CanCreate)
+        {
+            <a asp-page="Create" class="btn btn-primary">Додати пристрій</a>
+        }
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Назва</th>
+                    <th>Тип</th>
+                    <th>Статус</th>
+                    <th>Розташування</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var device in Model.Devices)
+                {
+                    <tr>
+                        <td>@device.DeviceName</td>
+                        <td>@device.DeviceType</td>
+                        <td>
+                            <span class="badge @(device.Status == SchoolKeeper.Models.Enums.DeviceStatus.Active ? "bg-success" : "bg-danger")">
+                                @device.Status
+                            </span>
+                        </td>
+                        <td>@device.Location</td>
+                        <td>
+                            <a asp-page="Details" asp-route-id="@device.Id" class="btn btn-sm btn-info">Деталі</a>
+                            @if (Model.CanEdit)
+                            {
+                                <a asp-page="Edit" asp-route-id="@device.Id" class="btn btn-sm btn-warning">Редагувати</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

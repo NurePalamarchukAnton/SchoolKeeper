@@ -7,6 +7,7 @@ public class UserDto
     public int Id { get; set; }
     public string FullName { get; set; } = default!;
     public UserRole Role { get; set; }
+    public string RoleString => Role.ToString();
     public string Email { get; set; } = default!;
     public string? PhoneNumber { get; set; }
     public int SchoolId { get; set; }

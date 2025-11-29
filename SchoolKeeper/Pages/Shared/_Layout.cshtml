@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SchoolKeeper</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" asp-page="/Index">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-shield-check me-2" viewBox="0 0 16 16">
+                        <path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157 1.392 7.092 4.087 9.547 2.691-2.455 4.64-5.39 4.087-9.547a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855l-.006-.003a18.908 18.908 0 0 0-1.844-.082z"/>
+                        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                    </svg>
+                    SchoolKeeper
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item" id="devicesNavItem" style="display: none;">
+                            <a class="nav-link" asp-page="/Devices/Index">Пристрої</a>
+                        </li>
+                        <li class="nav-item" id="adminNavItem" style="display: none;">
+                            <a class="nav-link" asp-page="/Admin/Index">Адмін-панель</a>
+                        </li>
+                        <li class="nav-item" id="securityNavItem" style="display: none;">
+                            <a class="nav-link" asp-page="/Security/Index">Безпека</a>
+                        </li>
+                        <li class="nav-item" id="teacherNavItem" style="display: none;">
+                            <a class="nav-link" asp-page="/Teacher/Index">Вчитель</a>
+                        </li>
+                        <li class="nav-item" id="parentNavItem" style="display: none;">
+                            <a class="nav-link" asp-page="/Parent/Index">Батьки</a>
+                        </li>
+                        <li class="nav-item" id="studentNavItem" style="display: none;">
+                            <a class="nav-link" asp-page="/Student/Index">Студент</a>
+                        </li>
+                        <li class="nav-item" id="reportsNavItem" style="display: none;">
+                            <a class="nav-link" asp-page="/Reports/Index">Звіти</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item" id="loginNavItem">
+                            <a class="nav-link" asp-page="/Login">Вхід</a>
+                        </li>
+                        <li class="nav-item" id="registerNavItem">
+                            <a class="nav-link" asp-page="/Register">Реєстрація</a>
+                        </li>
+                        <li class="nav-item dropdown" id="userDropdownNavItem" style="display: none;">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="userEmailNav"></span>
+                                <span class="badge bg-light text-dark ms-2" id="userRoleBadge"></span>
+                                <span class="badge bg-warning text-dark ms-2" id="impersonationBadge" style="display: none;">Від імені</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li id="stopImpersonationItem" style="display: none;"><a class="dropdown-item" href="#" id="stopImpersonationLink">Вийти з режиму входу від імені</a></li>
+                                <li><hr class="dropdown-divider" id="impersonationDivider" style="display: none;"></li>
+                                <li><a class="dropdown-item" href="#" id="logoutBtn">Вихід</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid px-4 py-3">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="bg-light border-top mt-5 py-3">
+        <div class="container-fluid text-center text-muted">
+            <small>&copy; 2024 SchoolKeeper. Система управління безпекою школи.</small>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+    <script>
+        // Обновление навигации при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            updateNavigation();
+        });
+
+        function updateNavigation() {
+            try {
+                const token = localStorage.getItem('authToken');
+                const userEmail = localStorage.getItem('userEmail');
+                const userRole = localStorage.getItem('userRole');
+                
+                const loginNavItem = document.getElementById('loginNavItem');
+                const registerNavItem = document.getElementById('registerNavItem');
+                const userDropdownNavItem = document.getElementById('userDropdownNavItem');
+                const userEmailNav = document.getElementById('userEmailNav');
+                const userRoleBadge = document.getElementById('userRoleBadge');
+                
+                // Навигация по ролям
+                const devicesNavItem = document.getElementById('devicesNavItem');
+                const adminNavItem = document.getElementById('adminNavItem');
+                const securityNavItem = document.getElementById('securityNavItem');
+                const teacherNavItem = document.getElementById('teacherNavItem');
+                const parentNavItem = document.getElementById('parentNavItem');
+                const studentNavItem = document.getElementById('studentNavItem');
+                const reportsNavItem = document.getElementById('reportsNavItem');
+                
+                // Функция для скрытия всех элементов навигации
+                function hideAllNavItems() {
+                    try {
+                        if (devicesNavItem && devicesNavItem.style) devicesNavItem.style.display = 'none';
+                        if (adminNavItem && adminNavItem.style) adminNavItem.style.display = 'none';
+                        if (securityNavItem && securityNavItem.style) securityNavItem.style.display = 'none';
+                        if (teacherNavItem && teacherNavItem.style) teacherNavItem.style.display = 'none';
+                        if (parentNavItem && parentNavItem.style) parentNavItem.style.display = 'none';
+                        if (studentNavItem && studentNavItem.style) studentNavItem.style.display = 'none';
+                        // reportsNavItem не скрываем, так как он доступен всем авторизованным
+                    } catch (e) {
+                        console.warn('Error hiding nav items:', e);
+                    }
+                }
+            
+                if (token && userEmail) {
+                    // Пользователь авторизован
+                    if (loginNavItem && loginNavItem.style) loginNavItem.style.display = 'none';
+                    if (registerNavItem && registerNavItem.style) registerNavItem.style.display = 'none';
+                    if (userDropdownNavItem && userDropdownNavItem.style) userDropdownNavItem.style.display = 'block';
+                    if (userEmailNav) userEmailNav.textContent = userEmail;
+                    if (userRoleBadge) userRoleBadge.textContent = userRole || 'User';
+                    
+                    // Проверяем режим impersonation - только для админов
+                    const isImpersonating = localStorage.getItem('isImpersonating') === 'true';
+                    const originalAdminId = localStorage.getItem('originalAdminId');
+                    const impersonationBadge = document.getElementById('impersonationBadge');
+                    const stopImpersonationItem = document.getElementById('stopImpersonationItem');
+                    const impersonationDivider = document.getElementById('impersonationDivider');
+                    
+                    // Показываем элементы impersonation только если:
+                    // 1. Режим активен (isImpersonating === 'true')
+                    // 2. Есть originalAdminId (значит это админ в режиме impersonation)
+                    // Примечание: когда админ входит от имени другого пользователя, userRole будет ролью того пользователя,
+                    // поэтому проверяем только isImpersonating и originalAdminId
+                    const shouldShowImpersonation = isImpersonating && originalAdminId;
+                    
+                    if (shouldShowImpersonation) {
+                        if (impersonationBadge) impersonationBadge.style.display = 'inline';
+                        if (stopImpersonationItem) stopImpersonationItem.style.display = 'block';
+                        if (impersonationDivider) impersonationDivider.style.display = 'block';
+                    } else {
+                        if (impersonationBadge) impersonationBadge.style.display = 'none';
+                        if (stopImpersonationItem) stopImpersonationItem.style.display = 'none';
+                        if (impersonationDivider) impersonationDivider.style.display = 'none';
+                    }
+                    
+                    // Скрываем все элементы навигации сначала
+                    hideAllNavItems();
+                    
+                    // Показываем только те страницы, которые доступны для ТОЧНО этой роли
+                    if (userRole === 'Admin') {
+                        // Admin видит только админ-панель
+                        if (adminNavItem && adminNavItem.style) adminNavItem.style.display = 'block';
+                    } else if (userRole === 'Security') {
+                        // Security видит только: Устройства, Безопасность
+                        if (devicesNavItem && devicesNavItem.style) devicesNavItem.style.display = 'block';
+                        if (securityNavItem && securityNavItem.style) securityNavItem.style.display = 'block';
+                    } else if (userRole === 'Teacher') {
+                        // Teacher видит только Teacher
+                        if (teacherNavItem && teacherNavItem.style) teacherNavItem.style.display = 'block';
+                    } else if (userRole === 'Parent') {
+                        // Parent видит только Батьки и Звіти
+                        if (parentNavItem && parentNavItem.style) parentNavItem.style.display = 'block';
+                    } else if (userRole === 'Student') {
+                        // Student видит только Student
+                        if (studentNavItem && studentNavItem.style) studentNavItem.style.display = 'block';
+                    } else {
+                        // Для неизвестных ролей показываем только Devices
+                        if (devicesNavItem && devicesNavItem.style) devicesNavItem.style.display = 'block';
+                    }
+                    
+                    // Звіти доступны всем авторизованным пользователям
+                    if (reportsNavItem && reportsNavItem.style) reportsNavItem.style.display = 'block';
+                } else {
+                    // Пользователь не авторизован
+                    if (loginNavItem && loginNavItem.style) loginNavItem.style.display = 'block';
+                    if (registerNavItem && registerNavItem.style) registerNavItem.style.display = 'block';
+                    if (userDropdownNavItem && userDropdownNavItem.style) userDropdownNavItem.style.display = 'none';
+                    
+                    // Скрываем навигацию по ролям
+                    hideAllNavItems();
+                }
+            
+            // Функция для выхода из системы
+            function performLogout() {
+                // Очищаем все переменные авторизации из localStorage
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userRole');
+                localStorage.removeItem('userId');
+                
+                // Очищаем cookie
+                document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                
+                // Перенаправляем на страницу логина
+                window.location.href = '/Login';
+            }
+            
+            // Обработчик выхода для кнопки в dropdown
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                // Удаляем старые обработчики, если они есть
+                logoutBtn.replaceWith(logoutBtn.cloneNode(true));
+                const newLogoutBtn = document.getElementById('logoutBtn');
+                newLogoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    performLogout();
+                });
+            }
+
+            // Обработчик выхода из режима impersonation
+            const stopImpersonationLink = document.getElementById('stopImpersonationLink');
+            if (stopImpersonationLink) {
+                stopImpersonationLink.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    
+                    try {
+                        // Получаем originalAdminId из localStorage
+                        const originalAdminId = localStorage.getItem('originalAdminId');
+                        const { response, data } = await auth.apiRequest('/auth/stop-impersonation', {
+                            method: 'POST',
+                            body: JSON.stringify({ originalAdminId: originalAdminId || '' })
+                        });
+
+                        if (response.ok && data.statusCode === 200) {
+                            // Обновляем данные админа в localStorage
+                            localStorage.setItem('authToken', data.data.token);
+                            localStorage.setItem('userEmail', data.data.email);
+                            localStorage.setItem('userRole', data.data.role);
+                            localStorage.setItem('userId', data.data.userId);
+                            localStorage.removeItem('isImpersonating');
+                            localStorage.removeItem('originalAdminId');
+                            
+                            // Обновляем cookie
+                            document.cookie = `authToken=${data.data.token}; path=/; max-age=43200`;
+                            document.cookie = 'isImpersonating=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                            document.cookie = 'originalAdminId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                            
+                            // Перенаправляем на админ-панель
+                            window.location.href = '/Admin';
+                        } else {
+                            alert('Помилка виходу з режиму входу від імені: ' + (data.message || 'Невідома помилка'));
+                        }
+                    } catch (error) {
+                        console.error('Error stopping impersonation:', error);
+                        alert('Помилка підключення до сервера');
+                    }
+                });
+            }
+            } catch (error) {
+                // Игнорируем ошибки, если элементы не найдены
+                console.warn('Navigation update error:', error);
+            }
+        }
+    </script>
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+

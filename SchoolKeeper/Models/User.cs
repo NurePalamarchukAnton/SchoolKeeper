@@ -1,5 +1,6 @@
 ﻿using Entities.Models;
 using Microsoft.EntityFrameworkCore;
+using SchoolKeeper.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 // ====================== User ======================
@@ -25,4 +26,12 @@ public class User : BaseModel
     public ICollection<Incident> ReportedIncidents { get; set; } = new List<Incident>();
     public ICollection<UserIncident> UserIncidents { get; set; } = new List<UserIncident>();
     public ICollection<Rept> GeneratedReports { get; set; } = new List<Rept>();
+    
+    // Parent-Student relationships
+    public ICollection<ParentStudent> ParentRelationships { get; set; } = new List<ParentStudent>();
+    public ICollection<ParentStudent> StudentRelationships { get; set; } = new List<ParentStudent>();
+    
+    // Student-Teacher relationships
+    public ICollection<StudentTeacher> StudentTeacherRelationships { get; set; } = new List<StudentTeacher>();
+    public ICollection<StudentTeacher> TeacherStudentRelationships { get; set; } = new List<StudentTeacher>();
 }

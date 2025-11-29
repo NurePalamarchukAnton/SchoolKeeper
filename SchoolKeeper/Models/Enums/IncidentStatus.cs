@@ -1,1 +1,3 @@
-﻿public enum IncidentStatus { Active, Resolved }
+﻿namespace SchoolKeeper.Models.Enums;
+
+public enum IncidentStatus { Active, Resolved }

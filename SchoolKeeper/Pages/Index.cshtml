@@ -1,0 +1,95 @@
+@page
+@model SchoolKeeper.Pages.IndexModel
+@{
+    ViewData["Title"] = "Головна";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4 mb-4">Ласкаво просимо до SchoolKeeper</h1>
+        </div>
+    </div>
+
+    <div id="authenticatedContent" style="display: none;">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Користувач</h5>
+                        <p class="card-text">
+                            <strong>Email:</strong> <span id="userEmailDisplay"></span><br>
+                            <strong>Роль:</strong> <span id="userRoleDisplay"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Швидкі дії</h5>
+                        <p class="card-text">
+                            <a href="/Schools" class="btn btn-outline-primary btn-sm">Переглянути школи</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">API Документація</h5>
+                        <p class="card-text">
+                            <a href="/swagger" class="btn btn-outline-info btn-sm" target="_blank">Swagger UI</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="unauthenticatedContent">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Для доступу до системи необхідно увійти</h5>
+                        <p class="card-text">
+                            <a asp-page="/Login" class="btn btn-primary">Увійти</a>
+                            <a asp-page="/Register" class="btn btn-outline-primary">Зареєструватися</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Перевірка автентифікації при завантаженні сторінки
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('authToken');
+            const userEmail = localStorage.getItem('userEmail');
+            const userRole = localStorage.getItem('userRole');
+            
+            const authenticatedContent = document.getElementById('authenticatedContent');
+            const unauthenticatedContent = document.getElementById('unauthenticatedContent');
+            
+            if (token && userEmail && authenticatedContent && unauthenticatedContent) {
+                // Користувач автентифікований
+                authenticatedContent.style.display = 'block';
+                unauthenticatedContent.style.display = 'none';
+                
+                const userEmailDisplay = document.getElementById('userEmailDisplay');
+                const userRoleDisplay = document.getElementById('userRoleDisplay');
+                if (userEmailDisplay) userEmailDisplay.textContent = userEmail;
+                if (userRoleDisplay) userRoleDisplay.textContent = userRole || 'Невідома';
+            } else if (unauthenticatedContent) {
+                // Користувач не автентифікований
+                if (authenticatedContent) authenticatedContent.style.display = 'none';
+                unauthenticatedContent.style.display = 'block';
+            }
+        });
+    </script>
+}
+

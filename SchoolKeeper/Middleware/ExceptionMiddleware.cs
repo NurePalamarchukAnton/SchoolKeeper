@@ -34,6 +34,14 @@ public class ExceptionMiddleware
         }
         catch (Exception ex)
         {
+            // Для Razor Pages (не API) пропускаем обработку ApiResponse исключений
+            // чтобы они обрабатывались стандартным способом ASP.NET Core
+            if (!context.Request.Path.StartsWithSegments("/api") && ex is ApiResponse)
+            {
+                // Для Razor Pages пробрасываем исключение дальше для стандартной обработки
+                throw;
+            }
+            
             await HandleExceptionAsync(context, ex);
         }
     }

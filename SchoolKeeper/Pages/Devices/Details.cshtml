@@ -1,0 +1,40 @@
+@page
+@model SchoolKeeper.Pages.Devices.DetailsModel
+@{
+    ViewData["Title"] = "Деталі пристрою";
+}
+
+<div class="container">
+    <h2>Деталі пристрою</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Назва:</dt>
+                <dd class="col-sm-9">@Model.Device.DeviceName</dd>
+
+                <dt class="col-sm-3">Тип:</dt>
+                <dd class="col-sm-9">@Model.Device.DeviceType</dd>
+
+                <dt class="col-sm-3">Статус:</dt>
+                <dd class="col-sm-9">
+                    <span class="badge @(Model.Device.Status == SchoolKeeper.Models.Enums.DeviceStatus.Active ? "bg-success" : "bg-danger")">
+                        @Model.Device.Status
+                    </span>
+                </dd>
+
+                <dt class="col-sm-3">Розташування:</dt>
+                <dd class="col-sm-9">@Model.Device.Location</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-page="Index" class="btn btn-secondary">Назад до списку</a>
+        @if (Model.CanEdit)
+        {
+            <a asp-page="Edit" asp-route-id="@Model.Device.Id" class="btn btn-warning">Редагувати</a>
+        }
+    </div>
+</div>
+

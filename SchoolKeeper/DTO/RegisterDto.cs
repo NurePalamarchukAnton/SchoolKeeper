@@ -1,4 +1,6 @@
-﻿namespace SchoolKeeper.Controllers
+﻿using SchoolKeeper.Models.Enums;
+
+namespace SchoolKeeper.Controllers
 {
     public partial class AuthController
     {

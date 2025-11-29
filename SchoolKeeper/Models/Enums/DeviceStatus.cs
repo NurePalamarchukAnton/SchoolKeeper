@@ -1,1 +1,3 @@
-﻿public enum DeviceStatus { Active, Inactive, Error }
+﻿namespace SchoolKeeper.Models.Enums;
+
+public enum DeviceStatus { Active, Inactive, Error }
