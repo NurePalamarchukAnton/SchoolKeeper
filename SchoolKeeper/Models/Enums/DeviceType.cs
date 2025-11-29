@@ -1,1 +1,3 @@
-﻿public enum DeviceType { Camera, MotionSensor, AlarmButton, AccessControl }
+﻿namespace SchoolKeeper.Models.Enums;
+
+public enum DeviceType { MotionSensor, AlarmButton, AccessControl }

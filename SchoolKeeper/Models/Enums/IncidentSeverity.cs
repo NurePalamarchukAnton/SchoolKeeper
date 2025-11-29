@@ -1,1 +1,3 @@
-﻿public enum IncidentSeverity { Low, Medium, High, Critical }
+﻿namespace SchoolKeeper.Models.Enums;
+
+public enum IncidentSeverity { Low, Medium, High, Critical }

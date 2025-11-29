@@ -1,0 +1,103 @@
+@page
+@model SchoolKeeper.Pages.LoginModel
+@{
+    ViewData["Title"] = "Вхід";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Вхід</h2>
+                
+                <div id="errorAlert" class="alert alert-danger" role="alert" style="display: none;">
+                    <span id="errorMessage"></span>
+                </div>
+
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" id="loginBtn">Увійти</button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3">
+                    <p>Немає акаунту? <a asp-page="/Register">Зареєструватися</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Приховуємо помилки
+            errorAlert.style.display = 'none';
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Вхід...';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.statusCode === 200) {
+                    // Зберігаємо токен
+                    localStorage.setItem('authToken', data.data.token);
+                    localStorage.setItem('userEmail', data.data.email);
+                    localStorage.setItem('userRole', data.data.role);
+                    localStorage.setItem('userId', data.data.userId);
+                    
+                    // Очищаємо дані impersonation при звичайному логіні
+                    localStorage.removeItem('isImpersonating');
+                    localStorage.removeItem('originalAdminId');
+                    
+                    // Встановлюємо cookie для серверної перевірки
+                    document.cookie = `authToken=${data.data.token}; path=/; max-age=43200`; // 12 годин
+                    document.cookie = 'isImpersonating=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                    document.cookie = 'originalAdminId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                    
+                    // Перенаправляємо на головну
+                    window.location.href = '/';
+                } else {
+                    // Показуємо помилку
+                    errorMessage.textContent = data.message || 'Помилка входу. Перевірте email та пароль.';
+                    errorAlert.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Помилка з\'єднання з сервером.';
+                errorAlert.style.display = 'block';
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Увійти';
+            }
+        });
+    </script>
+}
+

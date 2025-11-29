@@ -1,0 +1,477 @@
+@page
+@model SchoolKeeper.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "Панель адміністратора";
+}
+
+<div class="container-fluid" id="adminPanel">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Панель адміністратора</h1>
+        <a href="/Admin/Impersonate" class="btn btn-outline-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-badge me-2" viewBox="0 0 16 16">
+                <path d="M6.5 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                <path d="M4.5 0A2.5 2.5 0 0 0 2 2.5v14.5A1.5 1.5 0 0 0 3.5 18h9a1.5 1.5 0 0 0 1.5-1.5v-14.5A2.5 2.5 0 0 0 11.5 0h-7zM3 2.5A1.5 1.5 0 0 1 4.5 1h7A1.5 1.5 0 0 1 13 2.5v14.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V2.5z"/>
+            </svg>
+            Вхід від імені користувача
+        </a>
+    </div>
+
+    <!-- Навігаційні вкладки -->
+    <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="school-tab" data-bs-toggle="tab" data-bs-target="#School" type="button" role="tab">
+                Школи
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="user-tab" data-bs-toggle="tab" data-bs-target="#User" type="button" role="tab">
+                Користувачі
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="device-tab" data-bs-toggle="tab" data-bs-target="#Device" type="button" role="tab">
+                Пристрої
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="incident-tab" data-bs-toggle="tab" data-bs-target="#Incident" type="button" role="tab">
+                Інциденти
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="rept-tab" data-bs-toggle="tab" data-bs-target="#Rept" type="button" role="tab">
+                Звіти
+            </button>
+        </li>
+    </ul>
+
+    <!-- Контент вкладок -->
+    <div class="tab-content" id="adminTabContent">
+        <!-- Вкладка Школи -->
+        <div class="tab-pane fade show active" id="School" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Школи</h3>
+                <button class="btn btn-primary" onclick="AdminPanel.createItem('School')">Додати школу</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="SchoolTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Назва</th>
+                            <th>Адреса</th>
+                            <th>Регіон</th>
+                            <th>Контактний номер</th>
+                            <th>Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="loading-row">
+                            <td colspan="6" class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Завантаження...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Вкладка Користувачі -->
+        <div class="tab-pane fade" id="User" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Користувачі</h3>
+                <button class="btn btn-primary" onclick="AdminPanel.createItem('User')">Додати користувача</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="UserTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ПІБ</th>
+                            <th>Email</th>
+                            <th>Роль</th>
+                            <th>Телефон</th>
+                            <th>ID Школи</th>
+                            <th>Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="loading-row">
+                            <td colspan="7" class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Завантаження...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Вкладка Пристрої -->
+        <div class="tab-pane fade" id="Device" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Пристрої</h3>
+                <button class="btn btn-primary" onclick="AdminPanel.createItem('Device')">Додати пристрій</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="DeviceTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Назва</th>
+                            <th>Тип</th>
+                            <th>Статус</th>
+                            <th>Розташування</th>
+                            <th>ID Школи</th>
+                            <th>Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="loading-row">
+                            <td colspan="7" class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Завантаження...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Вкладка Інциденти -->
+        <div class="tab-pane fade" id="Incident" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Інциденти</h3>
+                <button class="btn btn-primary" onclick="AdminPanel.createItem('Incident')">Додати інцидент</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="IncidentTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ID Пристрою</th>
+                            <th>Повідомив</th>
+                            <th>Тип</th>
+                            <th>Серйозність</th>
+                            <th>Опис</th>
+                            <th>Дата</th>
+                            <th>Статус</th>
+                            <th>ID Школи</th>
+                            <th>Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="loading-row">
+                            <td colspan="10" class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Завантаження...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Вкладка Звіти -->
+        <div class="tab-pane fade" id="Rept" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Звіти</h3>
+                <button class="btn btn-primary" onclick="AdminPanel.createItem('Rept')">Додати звіт</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="ReptTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ID Школи</th>
+                            <th>Створив</th>
+                            <th>Початок періоду</th>
+                            <th>Кінець періоду</th>
+                            <th>Резюме</th>
+                            <th>Дата створення</th>
+                            <th>Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="loading-row">
+                            <td colspan="8" class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Завантаження...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальне вікно для Школи -->
+<div class="modal fade" id="SchoolModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Школа</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="SchoolForm">
+                    <div class="mb-3">
+                        <label class="form-label">Назва *</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Адреса</label>
+                        <input type="text" class="form-control" name="address">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Регіон</label>
+                        <input type="text" class="form-control" name="region">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Контактний номер</label>
+                        <input type="text" class="form-control" name="contactNumber">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('School')">Зберегти</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальне вікно для Користувача -->
+<div class="modal fade" id="UserModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Користувач</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="UserForm">
+                    <div class="mb-3">
+                        <label class="form-label">ПІБ *</label>
+                        <input type="text" class="form-control" name="fullName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email *</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Пароль <small class="text-muted">(залиште порожнім, щоб не змінювати)</small></label>
+                        <input type="password" class="form-control" name="password">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Роль *</label>
+                        <select class="form-select" name="role" required>
+                            <option value="Admin">Admin</option>
+                            <option value="Security">Security</option>
+                            <option value="Teacher">Teacher</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Student">Student</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Телефон</label>
+                        <input type="text" class="form-control" name="phoneNumber">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Школа *</label>
+                        <select class="form-select" name="schoolId" required>
+                            <option value="">Завантаження...</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('User')">Зберегти</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальне вікно для Пристрою -->
+<div class="modal fade" id="DeviceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Пристрій</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="DeviceForm">
+                    <div class="mb-3">
+                        <label class="form-label">Назва *</label>
+                        <input type="text" class="form-control" name="deviceName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Тип *</label>
+                        <select class="form-select" name="deviceType" required>
+                            <option value="MotionSensor">MotionSensor</option>
+                            <option value="AlarmButton">AlarmButton</option>
+                            <option value="AccessControl">AccessControl</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Статус *</label>
+                        <select class="form-select" name="status" required>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Error">Error</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Розташування</label>
+                        <input type="text" class="form-control" name="location">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Школа *</label>
+                        <select class="form-select" name="schoolId" required>
+                            <option value="">Завантаження...</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('Device')">Зберегти</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальне вікно для Інциденту -->
+<div class="modal fade" id="IncidentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Інцидент</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="IncidentForm">
+                    <div class="mb-3">
+                        <label class="form-label">Пристрій *</label>
+                        <select class="form-select" name="deviceId" required>
+                            <option value="">Завантаження...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Повідомив *</label>
+                        <select class="form-select" name="reportedBy" required>
+                            <option value="">Завантаження...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Тип інциденту *</label>
+                        <input type="text" class="form-control" name="incidentType" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Серйозність *</label>
+                        <select class="form-select" name="severity" required>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Опис</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Дата та час</label>
+                        <input type="datetime-local" class="form-control" name="timestamp">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Статус *</label>
+                        <select class="form-select" name="status" required>
+                            <option value="Active">Active</option>
+                            <option value="Resolved">Resolved</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Школа *</label>
+                        <select class="form-select" name="schoolId" required>
+                            <option value="">Завантаження...</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Секция для отображения участников инцидента -->
+                    <div class="mb-3" id="incidentUsersSection" style="display: none;">
+                        <label class="form-label">Учасники інциденту</label>
+                        <div id="incidentUsersList" class="border rounded p-2" style="max-height: 200px; overflow-y: auto;">
+                            <p class="text-muted mb-0">Завантаження...</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('Incident')">Зберегти</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальне вікно для Звіту -->
+<div class="modal fade" id="ReptModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Звіт</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ReptForm">
+                    <div class="mb-3">
+                        <label class="form-label">Школа *</label>
+                        <select class="form-select" name="schoolId" required>
+                            <option value="">Завантаження...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Створив *</label>
+                        <select class="form-select" name="generatedBy" required>
+                            <option value="">Завантаження...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Початок періоду *</label>
+                        <input type="date" class="form-control" name="periodStart" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Кінець періоду *</label>
+                        <input type="date" class="form-control" name="periodEnd" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Резюме</label>
+                        <textarea class="form-control" name="summary" rows="4"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Дата створення</label>
+                        <input type="datetime-local" class="form-control" name="generatedOn">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('Rept')">Зберегти</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+}

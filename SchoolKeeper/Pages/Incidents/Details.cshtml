@@ -1,0 +1,237 @@
+@page
+@model SchoolKeeper.Pages.Incidents.DetailsModel
+@{
+    ViewData["Title"] = "Деталі інциденту";
+}
+
+<div class="container">
+    <h2>Деталі інциденту</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Тип інциденту</dt>
+                <dd class="col-sm-9">@Model.Incident.IncidentType</dd>
+
+                <dt class="col-sm-3">Серйозність</dt>
+                <dd class="col-sm-9">
+                    <span class="badge @(Model.Incident.Severity == SchoolKeeper.Models.Enums.IncidentSeverity.Critical ? "bg-danger" : 
+                        Model.Incident.Severity == SchoolKeeper.Models.Enums.IncidentSeverity.High ? "bg-warning" : 
+                        Model.Incident.Severity == SchoolKeeper.Models.Enums.IncidentSeverity.Medium ? "bg-info" : "bg-secondary")">
+                        @Model.Incident.Severity
+                    </span>
+                </dd>
+
+                <dt class="col-sm-3">Пристрій</dt>
+                <dd class="col-sm-9">@Model.DeviceName</dd>
+
+                <dt class="col-sm-3">Повідомив</dt>
+                <dd class="col-sm-9">@Model.ReporterName</dd>
+
+                <dt class="col-sm-3">Дата</dt>
+                <dd class="col-sm-9">@Model.Incident.Timestamp.ToString("dd.MM.yyyy HH:mm")</dd>
+
+                <dt class="col-sm-3">Статус</dt>
+                <dd class="col-sm-9">
+                    <span class="badge @(Model.Incident.Status == SchoolKeeper.Models.Enums.IncidentStatus.Active ? "bg-warning" : "bg-success")">
+                        @Model.Incident.Status
+                    </span>
+                </dd>
+
+                @if (!string.IsNullOrEmpty(Model.Incident.Description))
+                {
+                    <dt class="col-sm-3">Опис</dt>
+                    <dd class="col-sm-9">@Model.Incident.Description</dd>
+                }
+            </dl>
+        </div>
+    </div>
+
+    @* Отображение участников инцидента для всех пользователей *@
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Учасники інциденту</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.IncidentUsers.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>ПІБ</th>
+                                <th>Email</th>
+                                <th>Роль</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var incidentUser in Model.IncidentUsers)
+                            {
+                                <tr>
+                                    <td>@incidentUser.FullName</td>
+                                    <td>@incidentUser.Email</td>
+                                    <td><span class="badge bg-info">@incidentUser.Role</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">Немає учасників, пов'язаних з цим інцидентом</p>
+            }
+        </div>
+    </div>
+
+    @if (Model.CanManageUsers)
+    {
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Користувачі, пов'язані з інцидентом</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.IncidentUsers.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>ПІБ</th>
+                                    <th>Email</th>
+                                    <th>Роль</th>
+                                    <th>Дії</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var incidentUser in Model.IncidentUsers)
+                                {
+                                    <tr>
+                                        <td>@incidentUser.FullName</td>
+                                        <td>@incidentUser.Email</td>
+                                        <td><span class="badge bg-info">@incidentUser.Role</span></td>
+                                        <td>
+                                            @if (Model.Incident.Status == SchoolKeeper.Models.Enums.IncidentStatus.Active)
+                                            {
+                                                <button class="btn btn-sm btn-danger" onclick="removeUserFromIncident(@Model.Incident.Id, @incidentUser.Id)">
+                                                    Видалити
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">Немає користувачів, пов'язаних з цим інцидентом</p>
+                }
+
+                @* Скрываем интерфейс добавления пользователей для Resolved инцидентов *@
+                @if (Model.Incident.Status == SchoolKeeper.Models.Enums.IncidentStatus.Active)
+                {
+                    <div class="mt-3">
+                        <label class="form-label">Додати користувача до інциденту:</label>
+                        <div class="input-group">
+                            <select class="form-select" id="userSelect">
+                                <option value="">Оберіть користувача</option>
+                                @foreach (var user in Model.AvailableUsers)
+                                {
+                                    <option value="@user.Id">@user.FullName (@user.Email) - @user.Role</option>
+                                }
+                            </select>
+                            <button class="btn btn-primary" onclick="addUserToIncident(@Model.Incident.Id)">
+                                Додати
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="mt-3">
+        @if (Model.CanEdit)
+        {
+            <a asp-page="Edit" asp-route-id="@Model.Incident.Id" class="btn btn-warning">Редагувати</a>
+        }
+        @if (Model.CanResolve && Model.Incident.Status == SchoolKeeper.Models.Enums.IncidentStatus.Active)
+        {
+            <form method="post" asp-page-handler="Resolve" asp-route-id="@Model.Incident.Id" style="display: inline;">
+                <button type="submit" class="btn btn-success">Вирішити</button>
+            </form>
+        }
+        <a asp-page="Index" class="btn btn-secondary">Назад до списку</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function addUserToIncident(incidentId) {
+            const userId = document.getElementById('userSelect').value;
+            if (!userId) {
+                alert('Будь ласка, оберіть користувача');
+                return;
+            }
+
+            try {
+                const result = await auth.apiRequest(`/Incident/${incidentId}/add-user`, {
+                    method: 'POST',
+                    body: JSON.stringify({ userId: parseInt(userId) })
+                });
+
+                if (!result) {
+                    // Пользователь был перенаправлен на страницу входа
+                    return;
+                }
+
+                const { response, data } = result;
+
+                if (response.ok && data.statusCode === 200) {
+                    // Перезагружаем страницу для обновления списка
+                    window.location.reload();
+                } else {
+                    const errorMessage = data?.message || data?.title || `Помилка ${response.status}: ${response.statusText}`;
+                    alert('Помилка: ' + errorMessage);
+                }
+            } catch (error) {
+                console.error('Error adding user to incident:', error);
+                alert('Помилка підключення до сервера: ' + error.message);
+            }
+        }
+
+        async function removeUserFromIncident(incidentId, userId) {
+            if (!confirm('Ви впевнені, що хочете видалити цього користувача з інциденту?')) {
+                return;
+            }
+
+            try {
+                const result = await auth.apiRequest(`/Incident/${incidentId}/remove-user/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!result) {
+                    // Пользователь был перенаправлен на страницу входа
+                    return;
+                }
+
+                const { response, data } = result;
+
+                if (response.ok && data.statusCode === 200) {
+                    // Перезагружаем страницу для обновления списка
+                    window.location.reload();
+                } else {
+                    const errorMessage = data?.message || data?.title || `Помилка ${response.status}: ${response.statusText}`;
+                    alert('Помилка: ' + errorMessage);
+                }
+            } catch (error) {
+                console.error('Error removing user from incident:', error);
+                alert('Помилка підключення до сервера: ' + error.message);
+            }
+        }
+    </script>
+}
+
+

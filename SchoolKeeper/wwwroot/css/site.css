@@ -1,5 +1,7 @@
 html {
   font-size: 14px;
+  position: relative;
+  min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -8,17 +10,15 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
   margin-bottom: 60px;
+  background-color: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Focus styles */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -28,4 +28,605 @@ body {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
+}
+
+/* Navigation styles */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.nav-link {
+  transition: all 0.15s ease-in-out;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: rgba(255, 255, 255, 0.9) !important;
+  transform: translateY(-1px);
+}
+
+.dropdown-menu {
+  border: none;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* Card styles */
+.card {
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-bottom: 1.5rem;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card.shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.card-title {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #212529;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Dashboard cards */
+.card.text-white {
+  border-radius: 0.75rem;
+  transition: transform 0.2s;
+  color: white !important;
+}
+
+.card.text-white:hover {
+  transform: scale(1.02);
+}
+
+.card.text-white .card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  color: white !important;
+}
+
+.card.text-white h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white !important;
+}
+
+.card.text-white .card-body {
+  color: white !important;
+}
+
+.card.text-white .card-body * {
+  color: white !important;
+}
+
+/* Form styles */
+.form-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #258cfb;
+  box-shadow: 0 0 0 0.2rem rgba(37, 140, 251, 0.25);
+}
+
+.form-control {
+  border-radius: 0.5rem;
+  border: 1px solid #ced4da;
+  padding: 0.75rem;
+}
+
+.form-control:focus {
+  border-color: #258cfb;
+}
+
+/* Button styles */
+.btn {
+  border-radius: 0.5rem;
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+}
+
+.btn-outline-primary {
+  border-color: #0d6efd;
+  color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  transform: translateY(-1px);
+}
+
+.btn-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* Table styles */
+.table {
+  background-color: white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.table thead {
+  background-color: #f8f9fa;
+}
+
+.table thead th {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table tbody tr {
+  transition: background-color 0.15s;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > td {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Badge styles */
+.badge {
+  padding: 0.5em 0.75em;
+  font-weight: 600;
+  border-radius: 0.5rem;
+}
+
+/* Alert styles */
+.alert {
+  border-radius: 0.75rem;
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Main content */
+main {
+  min-height: calc(100vh - 200px);
+}
+
+/* Display styles */
+.display-4 {
+  font-weight: 700;
+  line-height: 1.2;
+  color: #212529;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: #212529;
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .card {
+    margin: 0.5rem;
+  }
+  
+  .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Loading states */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Utility classes */
+.shadow-custom {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card {
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* Admin Panel Styles */
+#adminPanel {
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* Tab Navigation */
+.nav-tabs {
+  border-bottom: 2px solid #dee2e6;
+  margin-bottom: 1.5rem;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #6c757d;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s;
+  margin-bottom: -2px;
+}
+
+.nav-tabs .nav-link:hover {
+  border-bottom-color: #0d6efd;
+  color: #0d6efd;
+  background-color: transparent;
+}
+
+.nav-tabs .nav-link.active {
+  color: #0d6efd;
+  background-color: transparent;
+  border-bottom-color: #0d6efd;
+  font-weight: 600;
+}
+
+/* Admin Tables */
+#adminPanel .table-responsive {
+  border-radius: 0.75rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  background-color: white;
+}
+
+#adminPanel .table {
+  margin-bottom: 0;
+}
+
+#adminPanel .table tbody tr {
+  cursor: default;
+}
+
+#adminPanel .table tbody tr .btn {
+  margin-right: 0.25rem;
+}
+
+#adminPanel .table tbody tr .btn:last-child {
+  margin-right: 0;
+}
+
+/* Loading Row */
+.loading-row td {
+  padding: 3rem !important;
+}
+
+/* Modal Styles */
+.modal-content {
+  border-radius: 0.75rem;
+  border: none;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  border-bottom: 1px solid #dee2e6;
+  padding: 1.5rem;
+}
+
+.modal-title {
+  font-weight: 600;
+  color: #212529;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #dee2e6;
+  padding: 1rem 1.5rem;
+}
+
+.modal-footer .btn {
+  margin-left: 0.5rem;
+}
+
+.modal-footer .btn:first-child {
+  margin-left: 0;
+}
+
+/* Form Styles in Modal */
+.modal-body .form-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.modal-body .form-control,
+.modal-body .form-select {
+  border-radius: 0.5rem;
+  border: 1px solid #ced4da;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.modal-body .form-control:focus,
+.modal-body .form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.modal-body textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Alert Container */
+#alertContainer {
+  max-width: 400px;
+}
+
+#alertContainer .alert {
+  min-width: 300px;
+  margin-bottom: 0.5rem;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Action Buttons in Tables */
+.btn-sm.btn-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #000;
+}
+
+.btn-sm.btn-warning:hover {
+  background-color: #ffca2c;
+  border-color: #ffc720;
+  color: #000;
+}
+
+.btn-sm.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-sm.btn-danger:hover {
+  background-color: #bb2d3b;
+  border-color: #b02a37;
+}
+
+/* Badge Styles in Tables */
+.table .badge {
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+}
+
+/* Empty State */
+.table tbody tr td[colspan] {
+  text-align: center;
+  padding: 3rem !important;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Responsive Admin Panel */
+@media (max-width: 768px) {
+  .nav-tabs .nav-link {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  #adminPanel .table-responsive {
+    font-size: 0.875rem;
+  }
+  
+  #adminPanel .btn-sm {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+  
+  .modal-body {
+    padding: 1rem;
+  }
+}
+
+/* Tab Content Animation */
+.tab-pane {
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* Spinner */
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+  border-width: 0.2em;
+}
+
+/* Student Panel Styles */
+/* Teacher Cards */
+.card.border-primary {
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-width: 2px !important;
+}
+
+.card.border-primary:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.3);
+}
+
+.card.border-primary .card-body {
+  padding: 1.25rem;
+}
+
+.card.border-primary .card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #0d6efd;
+  margin-bottom: 0.75rem;
+}
+
+.card.border-primary .card-text {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.card.border-primary .bi {
+  vertical-align: -0.125em;
+}
+
+/* Student Incidents Table */
+#studentPanel .table-responsive {
+  border-radius: 0.75rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  background-color: white;
+}
+
+#studentPanel .table tbody tr {
+  transition: background-color 0.15s;
+}
+
+#studentPanel .table tbody tr:hover {
+  background-color: #f8f9fa;
+  cursor: pointer;
+}
+
+/* Empty State for Student */
+.alert-info {
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+  color: #0c5460;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+/* Teacher Cards Grid */
+@media (max-width: 768px) {
+  .col-md-4.col-lg-3 {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Student Statistics Cards */
+.card.text-white.bg-info {
+  background-color: #0dcaf0 !important;
+}
+
+.card.text-white.bg-info .card-title {
+  color: white;
+}
+
+/* Badge Colors for Severity */
+.badge.bg-secondary {
+  background-color: #6c757d !important;
+}
+
+.badge.bg-info {
+  background-color: #0dcaf0 !important;
+}
+
+.badge.bg-warning {
+  background-color: #ffc107 !important;
+  color: #000 !important;
+}
+
+.badge.bg-danger {
+  background-color: #dc3545 !important;
+}
+
+/* Card Header Icons */
+.card-header svg {
+  vertical-align: -0.125em;
+}
+
+/* Responsive Student Panel */
+@media (max-width: 576px) {
+  .card.border-primary .card-body {
+    padding: 1rem;
+  }
+  
+  .card.border-primary .card-title {
+    font-size: 1rem;
+  }
+  
+  #studentPanel .table {
+    font-size: 0.875rem;
+  }
+  
+  #studentPanel .btn-sm {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+  }
 }

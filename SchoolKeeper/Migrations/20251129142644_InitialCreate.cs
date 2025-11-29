@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -15,12 +16,12 @@ namespace SchoolKeeper.Migrations
                 name: "School",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    region = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    contact_number = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    address = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    region = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    contact_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -31,13 +32,14 @@ namespace SchoolKeeper.Migrations
                 name: "Device",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    device_name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    device_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     device_type = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     status = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
-                    location = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    school_id = table.Column<int>(type: "int", nullable: false)
+                    location = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    device_guid = table.Column<string>(type: "varchar(36)", maxLength: 36, nullable: true),
+                    school_id = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -47,21 +49,21 @@ namespace SchoolKeeper.Migrations
                         column: x => x.school_id,
                         principalTable: "School",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    full_name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    full_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     role = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
-                    email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    password_hash = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    phone_number = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    school_id = table.Column<int>(type: "int", nullable: false)
+                    email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    password_hash = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    phone_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    school_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -78,16 +80,16 @@ namespace SchoolKeeper.Migrations
                 name: "Incident",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    device_id = table.Column<int>(type: "int", nullable: false),
-                    reported_by = table.Column<int>(type: "int", nullable: false),
-                    incident_type = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    device_id = table.Column<int>(type: "integer", nullable: false),
+                    reported_by = table.Column<int>(type: "integer", nullable: false),
+                    incident_type = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     severity = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
                     description = table.Column<string>(type: "text", nullable: true),
-                    timestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     status = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
-                    school_id = table.Column<int>(type: "int", nullable: false)
+                    school_id = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -113,17 +115,42 @@ namespace SchoolKeeper.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ParentStudent",
+                columns: table => new
+                {
+                    parent_id = table.Column<int>(type: "integer", nullable: false),
+                    student_id = table.Column<int>(type: "integer", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ParentStudent", x => new { x.parent_id, x.student_id });
+                    table.ForeignKey(
+                        name: "FK_ParentStudent_User_parent_id",
+                        column: x => x.parent_id,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ParentStudent_User_student_id",
+                        column: x => x.student_id,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Rept",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    school_id = table.Column<int>(type: "int", nullable: false),
-                    generated_by = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    school_id = table.Column<int>(type: "integer", nullable: false),
+                    generated_by = table.Column<int>(type: "integer", nullable: false),
                     period_start = table.Column<DateOnly>(type: "date", nullable: false),
                     period_end = table.Column<DateOnly>(type: "date", nullable: false),
                     summary = table.Column<string>(type: "text", nullable: true),
-                    generated_on = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    generated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -143,12 +170,37 @@ namespace SchoolKeeper.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "StudentTeacher",
+                columns: table => new
+                {
+                    student_id = table.Column<int>(type: "integer", nullable: false),
+                    teacher_id = table.Column<int>(type: "integer", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudentTeacher", x => new { x.student_id, x.teacher_id });
+                    table.ForeignKey(
+                        name: "FK_StudentTeacher_User_student_id",
+                        column: x => x.student_id,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_StudentTeacher_User_teacher_id",
+                        column: x => x.teacher_id,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserIncident",
                 columns: table => new
                 {
-                    user_id = table.Column<int>(type: "int", nullable: false),
-                    incident_id = table.Column<int>(type: "int", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    user_id = table.Column<int>(type: "integer", nullable: false),
+                    incident_id = table.Column<int>(type: "integer", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -171,9 +223,9 @@ namespace SchoolKeeper.Migrations
                 name: "ReptIncident",
                 columns: table => new
                 {
-                    rept_id = table.Column<int>(type: "int", nullable: false),
-                    incident_id = table.Column<int>(type: "int", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    rept_id = table.Column<int>(type: "integer", nullable: false),
+                    incident_id = table.Column<int>(type: "integer", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -191,6 +243,11 @@ namespace SchoolKeeper.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Device_DeviceGuid",
+                table: "Device",
+                column: "device_guid");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Device_school_id",
@@ -218,6 +275,11 @@ namespace SchoolKeeper.Migrations
                 column: "timestamp");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ParentStudent_student_id",
+                table: "ParentStudent",
+                column: "student_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Rept_generated_by",
                 table: "Rept",
                 column: "generated_by");
@@ -236,6 +298,11 @@ namespace SchoolKeeper.Migrations
                 name: "IX_School_name",
                 table: "School",
                 column: "name");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentTeacher_teacher_id",
+                table: "StudentTeacher",
+                column: "teacher_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_email",
@@ -258,7 +325,13 @@ namespace SchoolKeeper.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "ParentStudent");
+
+            migrationBuilder.DropTable(
                 name: "ReptIncident");
+
+            migrationBuilder.DropTable(
+                name: "StudentTeacher");
 
             migrationBuilder.DropTable(
                 name: "UserIncident");

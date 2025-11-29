@@ -1,0 +1,54 @@
+@page
+@model SchoolKeeper.Pages.Devices.CreateModel
+@{
+    ViewData["Title"] = "Додати пристрій";
+}
+
+<div class="container">
+    <h2>Додати пристрій</h2>
+
+    <form method="post">
+        <div class="mb-3">
+            <label asp-for="Device.DeviceName" class="form-label">Назва пристрою</label>
+            <input asp-for="Device.DeviceName" class="form-control" required />
+            <span asp-validation-for="Device.DeviceName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Device.DeviceType" class="form-label">Тип пристрою</label>
+            <select asp-for="Device.DeviceType" asp-items="Model.DeviceTypes" class="form-select" required></select>
+            <span asp-validation-for="Device.DeviceType" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Device.Status" class="form-label">Статус</label>
+            <select asp-for="Device.Status" asp-items="Model.DeviceStatuses" class="form-select" required></select>
+            <span asp-validation-for="Device.Status" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Device.Location" class="form-label">Розташування</label>
+            <input asp-for="Device.Location" class="form-control" />
+            <span asp-validation-for="Device.Location" class="text-danger"></span>
+        </div>
+
+        @if (Model.IsAdmin)
+        {
+            <div class="mb-3">
+                <label asp-for="Device.SchoolId" class="form-label">Школа</label>
+                <select asp-for="Device.SchoolId" asp-items="Model.Schools" class="form-select" required></select>
+                <span asp-validation-for="Device.SchoolId" class="text-danger"></span>
+            </div>
+        }
+        else
+        {
+            <input type="hidden" asp-for="Device.SchoolId" />
+        }
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Створити</button>
+            <a asp-page="Index" class="btn btn-secondary">Скасувати</a>
+        </div>
+    </form>
+</div>
+

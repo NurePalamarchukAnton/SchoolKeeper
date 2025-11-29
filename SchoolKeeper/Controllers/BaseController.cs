@@ -1,7 +1,9 @@
 ﻿using Entities.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using SchoolKeeper.Abstractions.Interfaces.Repository;
+using SchoolKeeper.Response;
 
 namespace SchoolKeeper.Controllers
 {
@@ -11,11 +13,12 @@ namespace SchoolKeeper.Controllers
         where T : BaseModel
         where TDto : class
     {
+        protected IGenericRepository<T> Repo => _repo;
 
         /// <summary>Отримати список усіх сутностей (з пагінацією)</summary>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public virtual async Task<ActionResult<IEnumerable<TDto>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 50)
+        public virtual async Task<ActionResult<ResponseWrapper<IEnumerable<TDto>>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 50)
         {
             if (page <= 0) page = 1;
             if (pageSize <= 0 || pageSize > 500) pageSize = 50;
@@ -24,34 +27,41 @@ namespace SchoolKeeper.Controllers
             var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
             var dtos = items.Select(MapToDto).ToList();
-            return Ok(dtos);
+            var response = new ResponseWrapper<IEnumerable<TDto>>(200, dtos);
+            return Ok(response);
         }
 
         /// <summary>Отримати сутність за Id</summary>
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<ActionResult<TDto>> GetById(int id)
+        public virtual async Task<ActionResult<ResponseWrapper<TDto>>> GetById(int id)
         {
             var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return NotFound();
-            return Ok(MapToDto(entity));
+            if (entity == null) throw new NotFoundException();
+            
+            var dto = MapToDto(entity);
+            var response = new ResponseWrapper<TDto>(200, dto);
+            return Ok(response);
         }
 
         /// <summary>Створити сутність</summary>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public virtual async Task<ActionResult<TDto>> Create([FromBody] TDto dto)
+        [ApiExplorerSettings(IgnoreApi = false)] // Может быть переопределено в наследниках
+        public virtual async Task<ActionResult<ResponseWrapper<TDto>>> Create([FromBody] TDto dto)
         {
-            if (dto == null) return BadRequest();
+            if (dto == null) throw new BadRequestException("DTO cannot be null");
 
             var entity = MapToEntity(dto);
             await OnBeforeCreate(entity);
             var created = await _repo.AddAsync(entity);
             await OnAfterCreate(created);
 
-            return CreatedAtAction(nameof(GetById), new { id = GetEntityId(created) }, MapToDto(created));
+            var createdDto = MapToDto(created);
+            var response = new ResponseWrapper<TDto>(201, createdDto);
+            return CreatedAtAction(nameof(GetById), new { id = GetEntityId(created) }, response);
         }
 
         /// <summary>Оновити сутність за Id</summary>
@@ -59,12 +69,12 @@ namespace SchoolKeeper.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<ActionResult<TDto>> Update(int id, [FromBody] TDto dto)
+        public virtual async Task<ActionResult<ResponseWrapper<TDto>>> Update(int id, [FromBody] TDto dto)
         {
-            if (dto == null) return BadRequest("DTO is null.");
+            if (dto == null) throw new BadRequestException("DTO cannot be null");
 
             var existing = await _repo.GetByIdAsync(id);
-            if (existing == null) return NotFound();
+            if (existing == null) throw new NotFoundException();
 
             // Создаем временную сущность для хука (если нужна)
             var tempEntity = MapToEntity(dto);
@@ -76,23 +86,26 @@ namespace SchoolKeeper.Controllers
             var updated = await _repo.UpdateAsync(existing);
             await OnAfterUpdate(updated);
 
-            return Ok(MapToDto(updated));
+            var updatedDto = MapToDto(updated);
+            var response = new ResponseWrapper<TDto>(200, updatedDto);
+            return Ok(response);
         }
 
         /// <summary>Видалити сутність за Id</summary>
         [HttpDelete("{id:int}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<IActionResult> Delete(int id)
+        public virtual async Task<ActionResult<ResponseWrapper<object>>> Delete(int id)
         {
             var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return NotFound();
+            if (entity == null) throw new NotFoundException();
 
             await OnBeforeDelete(entity);
             await _repo.RemoveAsync(entity);
             await OnAfterDelete(id);
 
-            return NoContent();
+            var response = new ResponseWrapper<object>(200, null, "Entity deleted successfully");
+            return Ok(response);
         }
 
         // -------- Mapping methods (можно переопределять в наследниках) --------

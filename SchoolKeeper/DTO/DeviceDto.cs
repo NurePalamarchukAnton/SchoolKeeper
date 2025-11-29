@@ -7,9 +7,12 @@ public class DeviceDto
     public int Id { get; set; }
     public string DeviceName { get; set; } = default!;
     public DeviceType DeviceType { get; set; }
+    public string DeviceTypeString => DeviceType.ToString();
     public DeviceStatus Status { get; set; }
+    public string StatusString => Status.ToString();
     public string? Location { get; set; }
-    public int SchoolId { get; set; }
+    public string? DeviceGuid { get; set; }
+    public int? SchoolId { get; set; }
 }
 
 public class DeviceCreateDto
@@ -18,7 +21,8 @@ public class DeviceCreateDto
     public DeviceType DeviceType { get; set; }
     public DeviceStatus Status { get; set; } = DeviceStatus.Active;
     public string? Location { get; set; }
-    public int SchoolId { get; set; }
+    public string? DeviceGuid { get; set; }
+    public int? SchoolId { get; set; }
 }
 
 public class DeviceUpdateDto

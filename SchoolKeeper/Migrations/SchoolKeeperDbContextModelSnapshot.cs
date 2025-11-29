@@ -2,8 +2,8 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SchoolKeeper.Models.Enums;
 
 #nullable disable
@@ -18,22 +18,27 @@ namespace SchoolKeeper.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.10")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Device", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DeviceGuid")
+                        .HasMaxLength(36)
+                        .HasColumnType("varchar(36)")
+                        .HasColumnName("device_guid");
 
                     b.Property<string>("DeviceName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("device_name");
 
                     b.Property<string>("DeviceTypeValue")
@@ -44,11 +49,11 @@ namespace SchoolKeeper.Migrations
 
                     b.Property<string>("Location")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("location");
 
-                    b.Property<int>("SchoolId")
-                        .HasColumnType("int")
+                    b.Property<int?>("SchoolId")
+                        .HasColumnType("integer")
                         .HasColumnName("school_id");
 
                     b.Property<string>("StatusValue")
@@ -59,6 +64,9 @@ namespace SchoolKeeper.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeviceGuid")
+                        .HasDatabaseName("IX_Device_DeviceGuid");
+
                     b.HasIndex("SchoolId");
 
                     b.ToTable("Device");
@@ -68,30 +76,30 @@ namespace SchoolKeeper.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
 
-                    b.Property<int>("DeviceId")
-                        .HasColumnType("int")
+                    b.Property<int?>("DeviceId")
+                        .HasColumnType("integer")
                         .HasColumnName("device_id");
 
                     b.Property<string>("IncidentType")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("incident_type");
 
                     b.Property<int>("ReportedBy")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("reported_by");
 
-                    b.Property<int>("SchoolId")
-                        .HasColumnType("int")
+                    b.Property<int?>("SchoolId")
+                        .HasColumnType("integer")
                         .HasColumnName("school_id");
 
                     b.Property<string>("SeverityValue")
@@ -107,7 +115,7 @@ namespace SchoolKeeper.Migrations
                         .HasColumnName("status");
 
                     b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("timestamp");
 
                     b.HasKey("Id");
@@ -123,20 +131,40 @@ namespace SchoolKeeper.Migrations
                     b.ToTable("Incident");
                 });
 
+            modelBuilder.Entity("ParentStudent", b =>
+                {
+                    b.Property<int>("ParentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("parent_id");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("student_id");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ParentId", "StudentId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("ParentStudent");
+                });
+
             modelBuilder.Entity("Rept", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("GeneratedBy")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("generated_by");
 
                     b.Property<DateTime>("GeneratedOn")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("generated_on");
 
                     b.Property<DateOnly>("PeriodEnd")
@@ -148,7 +176,7 @@ namespace SchoolKeeper.Migrations
                         .HasColumnName("period_start");
 
                     b.Property<int>("SchoolId")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("school_id");
 
                     b.Property<string>("Summary")
@@ -167,15 +195,15 @@ namespace SchoolKeeper.Migrations
             modelBuilder.Entity("ReptIncident", b =>
                 {
                     b.Property<int>("ReptId")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("rept_id");
 
                     b.Property<int>("IncidentId")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("incident_id");
 
                     b.Property<int>("Id")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("ReptId", "IncidentId");
 
@@ -188,29 +216,29 @@ namespace SchoolKeeper.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("address");
 
                     b.Property<string>("ContactNumber")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
+                        .HasColumnType("character varying(20)")
                         .HasColumnName("contact_number");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
                     b.Property<string>("Region")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("region");
 
                     b.HasKey("Id");
@@ -220,35 +248,55 @@ namespace SchoolKeeper.Migrations
                     b.ToTable("School");
                 });
 
+            modelBuilder.Entity("StudentTeacher", b =>
+                {
+                    b.Property<int>("StudentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("student_id");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("integer")
+                        .HasColumnName("teacher_id");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.HasKey("StudentId", "TeacherId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("StudentTeacher");
+                });
+
             modelBuilder.Entity("User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("email");
 
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("full_name");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("password_hash");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
+                        .HasColumnType("character varying(20)")
                         .HasColumnName("phone_number");
 
                     b.Property<string>("RoleValue")
@@ -258,7 +306,7 @@ namespace SchoolKeeper.Migrations
                         .HasColumnName("role");
 
                     b.Property<int>("SchoolId")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("school_id");
 
                     b.HasKey("Id");
@@ -274,15 +322,15 @@ namespace SchoolKeeper.Migrations
             modelBuilder.Entity("UserIncident", b =>
                 {
                     b.Property<int>("UserId")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("user_id");
 
                     b.Property<int>("IncidentId")
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasColumnName("incident_id");
 
                     b.Property<int>("Id")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("UserId", "IncidentId");
 
@@ -296,8 +344,7 @@ namespace SchoolKeeper.Migrations
                     b.HasOne("School", "School")
                         .WithMany("Devices")
                         .HasForeignKey("SchoolId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("School");
                 });
@@ -307,8 +354,7 @@ namespace SchoolKeeper.Migrations
                     b.HasOne("Device", "Device")
                         .WithMany("Incidents")
                         .HasForeignKey("DeviceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("User", "Reporter")
                         .WithMany("ReportedIncidents")
@@ -319,14 +365,32 @@ namespace SchoolKeeper.Migrations
                     b.HasOne("School", "School")
                         .WithMany("Incidents")
                         .HasForeignKey("SchoolId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Device");
 
                     b.Navigation("Reporter");
 
                     b.Navigation("School");
+                });
+
+            modelBuilder.Entity("ParentStudent", b =>
+                {
+                    b.HasOne("User", "Parent")
+                        .WithMany("ParentRelationships")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("User", "Student")
+                        .WithMany("StudentRelationships")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("Rept", b =>
@@ -365,6 +429,25 @@ namespace SchoolKeeper.Migrations
                     b.Navigation("Incident");
 
                     b.Navigation("Rept");
+                });
+
+            modelBuilder.Entity("StudentTeacher", b =>
+                {
+                    b.HasOne("User", "Student")
+                        .WithMany("StudentTeacherRelationships")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("User", "Teacher")
+                        .WithMany("TeacherStudentRelationships")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+
+                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("User", b =>
@@ -429,7 +512,15 @@ namespace SchoolKeeper.Migrations
                 {
                     b.Navigation("GeneratedReports");
 
+                    b.Navigation("ParentRelationships");
+
                     b.Navigation("ReportedIncidents");
+
+                    b.Navigation("StudentRelationships");
+
+                    b.Navigation("StudentTeacherRelationships");
+
+                    b.Navigation("TeacherStudentRelationships");
 
                     b.Navigation("UserIncidents");
                 });

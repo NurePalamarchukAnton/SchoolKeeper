@@ -1,0 +1,68 @@
+@page
+@model SchoolKeeper.Pages.Incidents.IndexModel
+@{
+    ViewData["Title"] = "Інциденти";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Інциденти</h1>
+        @if (Model.CanCreate)
+        {
+            <a asp-page="Create" class="btn btn-primary">Створити інцидент</a>
+        }
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Тип</th>
+                    <th>Серйозність</th>
+                    <th>Пристрій</th>
+                    <th>Дата</th>
+                    <th>Статус</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var incident in Model.Incidents)
+                {
+                    <tr>
+                        <td>@incident.IncidentType</td>
+                        <td>
+                            <span class="badge @(incident.Severity == SchoolKeeper.Models.Enums.IncidentSeverity.Critical ? "bg-danger" : 
+                                incident.Severity == SchoolKeeper.Models.Enums.IncidentSeverity.High ? "bg-warning" : 
+                                incident.Severity == SchoolKeeper.Models.Enums.IncidentSeverity.Medium ? "bg-info" : "bg-secondary")">
+                                @incident.Severity
+                            </span>
+                        </td>
+                        <td>@incident.DeviceId</td>
+                        <td>@incident.Timestamp.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>
+                            <span class="badge @(incident.Status == SchoolKeeper.Models.Enums.IncidentStatus.Active ? "bg-warning" : "bg-success")">
+                                @incident.Status
+                            </span>
+                        </td>
+                        <td>
+                            <a asp-page="Details" asp-route-id="@incident.Id" class="btn btn-sm btn-info">Деталі</a>
+                            @if (Model.CanEdit)
+                            {
+                                <a asp-page="Edit" asp-route-id="@incident.Id" class="btn btn-sm btn-warning">Редагувати</a>
+                            }
+                            @if (Model.CanResolve && incident.Status == SchoolKeeper.Models.Enums.IncidentStatus.Active)
+                            {
+                                <form method="post" asp-page-handler="Resolve" asp-route-id="@incident.Id" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-success">Вирішити</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
