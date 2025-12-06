@@ -34,6 +34,7 @@
                         <td>@report.GeneratorName</td>
                         <td>
                             <a asp-page="Details" asp-route-id="@report.Id" class="btn btn-sm btn-info">Деталі</a>
+                            <button onclick="exportReport(@report.Id, 'txt')" class="btn btn-sm btn-success">Скачати TXT</button>
                         </td>
                     </tr>
                 }
@@ -42,4 +43,59 @@
     </div>
 </div>
 
+<script>
+    function getAuthToken() {
+        // Спочатку пробуємо з cookie
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'authToken') {
+                return value;
+            }
+        }
+        // Якщо немає в cookie, пробуємо localStorage
+        return localStorage.getItem('authToken');
+    }
+
+    async function exportReport(reportId, format) {
+        const token = getAuthToken();
+        if (!token) {
+            alert('Помилка: Ви не авторизовані. Будь ласка, увійдіть в систему.');
+            window.location.href = '/Login';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/Rept/${reportId}/export?format=${format}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': format === 'json' ? 'application/json' : format === 'csv' ? 'text/csv' : 'text/plain'
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    alert('Помилка: Сесія закінчилася. Будь ласка, увійдіть в систему знову.');
+                    window.location.href = '/Login';
+                    return;
+                }
+                throw new Error(`Помилка завантаження: ${response.status} ${response.statusText}`);
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `report_${reportId}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error('Помилка експорту:', error);
+            alert('Помилка при завантаженні звіту: ' + error.message);
+        }
+    }
+</script>
 

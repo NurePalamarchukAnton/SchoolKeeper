@@ -17,15 +17,7 @@ namespace SchoolKeeper.Extentions
             return EntityFrameworkQueryableExtensions.Include(repository.Query(), navigationPropertyPath);
         }
 
-        // Include от IQueryable (для цепочки вызовов)
-        public static IIncludableQueryable<T, TProperty> Include<T, TProperty>(
-            this IQueryable<T> source,
-            Expression<Func<T, TProperty>> navigationPropertyPath)
-            where T : BaseModel
-        {
-            return EntityFrameworkQueryableExtensions.Include(source, navigationPropertyPath);
-        }
-
+        // ThenInclude для цепочки вызовов (не конфликтует с EF Core, так как EF Core не имеет такого метода для IIncludableQueryable)
         public static IIncludableQueryable<T, TNextProperty> ThenInclude<T, TPreviousProperty, TNextProperty>(
             this IIncludableQueryable<T, TPreviousProperty> source,
             Expression<Func<TPreviousProperty, TNextProperty>> navigationPropertyPath)

@@ -16,29 +16,56 @@
 ## Налаштування
 
 ### 1. WiFi налаштування
-Відредагуйте в коді:
+
+#### Для WOKWI симуляції:
+В WOKWI симуляції WiFi може не працювати повністю. Можна залишити як є або використати:
 ```cpp
-const char* ssid = "YOUR_WIFI_SSID";
-const char* password = "YOUR_WIFI_PASSWORD";
+const char* ssid = "Wokwi-GUEST";
+const char* password = "";
+```
+
+**Примітка:** У WOKWI симуляції WiFi може не підключатися - це нормально. Для реального тестування використовуйте фізичний ESP32.
+
+#### Для реального ESP32:
+Вкажіть дані вашої WiFi мережі:
+```cpp
+const char* ssid = "MyHomeWiFi";           // Назва вашої WiFi мережі
+const char* password = "mypassword123";     // Пароль від WiFi мережі
+```
+
+**Приклад:**
+```cpp
+const char* ssid = "TP-Link_Router";
+const char* password = "SecurePassword2024";
 ```
 
 ### 2. URL сервера
+
+Вкажіть URL вашого сервера SchoolKeeper:
+
+#### Для локального тестування (якщо сервер на вашому комп'ютері):
 ```cpp
-const char* serverUrl = "http://your-server-url/api/Incident";
+const char* serverUrl = "http://localhost:5000/api/Incident/wokwi";
+// Або якщо ESP32 на іншій мережі:
+const char* serverUrl = "http://192.168.1.100:5000/api/Incident/wokwi"; // IP вашого комп'ютера
 ```
 
-### 3. JWT токен
-В функції `sendEventToServer()` замініть:
+#### Для Production (Render, Azure, AWS тощо):
 ```cpp
-http.addHeader("Authorization", "Bearer YOUR_JWT_TOKEN");
+const char* serverUrl = "https://your-app.onrender.com/api/Incident/wokwi";
+// Або
+const char* serverUrl = "https://schoolkeeper.azurewebsites.net/api/Incident/wokwi";
 ```
 
-### 4. ID пристрою та школи
-```cpp
-const int DEVICE_ID = 1;
-const int SCHOOL_ID = 1;
-const int REPORTED_BY = 1; // ID користувача Security
-```
+**Важливо:** 
+- Використовуйте ендпоинт `/api/Incident/wokwi` - він працює **БЕЗ авторизації**!
+- Для HTTPS використовуйте `https://` замість `http://`
+
+### 3. DeviceGuid
+DeviceGuid автоматично генерується з MAC-адреси ESP32 при старті.
+Формат: `ESP32_XXXXXXXXXXXX` (де X - hex символи MAC-адреси)
+
+**Примітка:** JWT токен **НЕ потрібен** для WOKWI ендпоинту!
 
 ## Використання в WOKWI
 
@@ -78,7 +105,7 @@ Type: MotionSensor
 Severity: High
 Description: Рух виявлено в забороненій зоні
 
-Sending to server: {"deviceId":1,"reportedBy":1,"incidentType":"MotionSensor","severity":"High","description":"Рух виявлено в забороненій зоні","timestamp":"2024-01-01T12:00:15","status":"Active","schoolId":1}
+Sending to server: {"deviceGuid":"ESP32_AABBCCDDEEFF","incidentType":"MotionSensor","severity":"High","description":"Рух виявлено в забороненій зоні","status":"Active"}
 
 ✓ Event sent successfully! Response code: 201
 Response: {"statusCode":201,"data":{...},"message":"Incident created"}
@@ -131,7 +158,9 @@ nextEventDelay = random(5000, 30000); // Мінімум 5 сек, максиму
 - У WOKWI симуляції WiFi може працювати не повністю
 - Для тестування HTTP запитів використовуйте реальне обладнання
 - Переконайтеся, що ваш сервер доступний з мережі ESP32
-- JWT токен має бути валідним та не простроченим
+- **JWT токен НЕ потрібен** - WOKWI ендпоинт працює без авторизації
+- DeviceGuid генерується автоматично з MAC-адреси ESP32
+- Якщо пристрій з таким DeviceGuid не існує, сервер автоматично створить його
 
 ## Troubleshooting
 
@@ -140,10 +169,10 @@ nextEventDelay = random(5000, 30000); // Мінімум 5 сек, максиму
 - У WOKWI WiFi може не працювати - використовуйте реальне обладнання
 
 ### HTTP запити не відправляються
-- Перевірте URL сервера
-- Перевірте JWT токен
-- Перевірте, що сервер доступний
+- Перевірте URL сервера (має закінчуватися на `/api/Incident/wokwi`)
+- Перевірте, що сервер доступний з мережі ESP32
 - Перевірте Serial Monitor для деталей помилок
+- Переконайтеся, що DeviceGuid генерується правильно
 
 ### Події не генеруються
 - Перевірте, що симуляція запущена

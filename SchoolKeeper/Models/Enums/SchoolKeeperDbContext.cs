@@ -27,6 +27,20 @@ public class SchoolKeeperDbContext : DbContext
             .HasIndex(d => d.DeviceGuid)
             .HasDatabaseName("IX_Device_DeviceGuid");
 
+        // Конвертация всех DateTime в UTC для PostgreSQL
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                {
+                    property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime, DateTime>(
+                        v => v.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(v, DateTimeKind.Utc) : v.ToUniversalTime(),
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc)));
+                }
+            }
+        }
+
         base.OnModelCreating(modelBuilder);
     }
 }
