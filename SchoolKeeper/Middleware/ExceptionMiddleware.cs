@@ -63,7 +63,7 @@ public class ExceptionMiddleware
             var genericError = new
             {
                 statusCode = 500,
-                message = "An internal server error occurred."
+                ex.Message
             };
             string json = JsonSerializer.Serialize(genericError, SerializerOptions);
             await context.Response.WriteAsync(json);
