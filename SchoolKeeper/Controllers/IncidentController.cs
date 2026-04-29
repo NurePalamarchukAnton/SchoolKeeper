@@ -212,7 +212,36 @@ namespace SchoolKeeper.Controllers
             // Если SchoolId не установлен, инциденты не создаются - админ должен сначала назначить школу устройству
             if (!device.SchoolId.HasValue)
             {
-                throw new BadRequestException("Device does not have a school assigned. Please assign a school to the device before creating incidents.");
+                var defaultSchoolIdRaw = Environment.GetEnvironmentVariable("WOKWI_DEFAULT_SCHOOL_ID");
+                if (int.TryParse(defaultSchoolIdRaw, out var defaultSchoolId))
+                {
+                    var schoolExists = await _context.Schools.AnyAsync(s => s.Id == defaultSchoolId);
+                    if (!schoolExists)
+                    {
+                        throw new BadRequestException($"WOKWI_DEFAULT_SCHOOL_ID={defaultSchoolId} does not exist.");
+                    }
+
+                    device.SchoolId = defaultSchoolId;
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    var schoolCount = await _context.Schools.CountAsync();
+                    if (schoolCount == 0)
+                    {
+                        throw new BadRequestException("No schools found in database. Create at least one school or set WOKWI_DEFAULT_SCHOOL_ID.");
+                    }
+
+                    var randomSchoolIndex = Random.Shared.Next(schoolCount);
+                    var randomSchoolId = await _context.Schools
+                        .OrderBy(s => s.Id)
+                        .Skip(randomSchoolIndex)
+                        .Select(s => s.Id)
+                        .FirstAsync();
+
+                    device.SchoolId = randomSchoolId;
+                    await _context.SaveChangesAsync();
+                }
             }
 
             // Определяем SchoolId для инцидента из устройства
@@ -269,6 +298,39 @@ namespace SchoolKeeper.Controllers
             var createdDto = MapToDto(created);
             var response = new ResponseWrapper<IncidentDto>(201, createdDto, "Incident created successfully");
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, response);
+        }
+
+        [HttpGet("wokwi/devices")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ResponseWrapper<IEnumerable<string>>>> GetWokwiDevices()
+        {
+            var activeStatus = DeviceStatus.Active.ToString();
+            var devices = await _context.Devices
+                .Where(d => d.SchoolId.HasValue && d.StatusValue == activeStatus)
+                .ToListAsync();
+
+            var devicesWithoutGuid = devices
+                .Where(d => string.IsNullOrWhiteSpace(d.DeviceGuid))
+                .ToList();
+
+            if (devicesWithoutGuid.Count > 0)
+            {
+                foreach (var device in devicesWithoutGuid)
+                {
+                    device.DeviceGuid = Guid.NewGuid().ToString();
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            var deviceGuids = devices
+                .Where(d => !string.IsNullOrWhiteSpace(d.DeviceGuid))
+                .Select(d => d.DeviceGuid!)
+                .Distinct()
+                .ToList();
+
+            var response = new ResponseWrapper<IEnumerable<string>>(200, deviceGuids, "Available WOKWI devices");
+            return Ok(response);
         }
 
         [HttpPut("{id:int}")]

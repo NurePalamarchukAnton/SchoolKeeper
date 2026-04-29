@@ -2,13 +2,14 @@
 @model SchoolKeeper.Pages.LoginModel
 @{
     ViewData["Title"] = "Вхід";
+    ViewData["I18nPage"] = "login";
 }
 
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-4">
         <div class="card shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-center mb-4">Вхід</h2>
+                <h2 class="card-title text-center mb-4" data-i18n="login.heading">Вхід</h2>
                 
                 <div id="errorAlert" class="alert alert-danger" role="alert" style="display: none;">
                     <span id="errorMessage"></span>
@@ -22,18 +23,18 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="password" class="form-label">Пароль</label>
+                        <label for="password" class="form-label" data-i18n="login.password">Пароль</label>
                         <input type="password" class="form-control" id="password" name="password" required>
                         <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary" id="loginBtn">Увійти</button>
+                        <button type="submit" class="btn btn-primary" id="loginBtn" data-i18n="login.submit">Увійти</button>
                     </div>
                 </form>
 
                 <div class="text-center mt-3">
-                    <p>Немає акаунту? <a asp-page="/Register">Зареєструватися</a></p>
+                    <p><span data-i18n="login.noAccount">Немає акаунту?</span> <a asp-page="/Register" data-i18n="login.registerLink">Зареєструватися</a></p>
                 </div>
             </div>
         </div>
@@ -42,6 +43,10 @@
 
 @section Scripts {
     <script>
+        function skT(key, fallback) {
+            var sk = window.SchoolKeeperI18n;
+            return sk ? sk.t(key) : fallback;
+        }
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -54,7 +59,7 @@
             // Приховуємо помилки
             errorAlert.style.display = 'none';
             loginBtn.disabled = true;
-            loginBtn.textContent = 'Вхід...';
+            loginBtn.textContent = skT('login.submitting', 'Вхід...');
             
             try {
                 const response = await fetch('/api/auth/login', {
@@ -87,16 +92,20 @@
                     window.location.href = '/';
                 } else {
                     // Показуємо помилку
-                    errorMessage.textContent = data.message || 'Помилка входу. Перевірте email та пароль.';
+                    errorMessage.textContent = data.message || skT('login.errorGeneric', 'Помилка входу. Перевірте email та пароль.');
                     errorAlert.style.display = 'block';
                 }
             } catch (error) {
-                errorMessage.textContent = 'Помилка з\'єднання з сервером.';
+                errorMessage.textContent = skT('login.errorNetwork', 'Помилка з\'єднання з сервером.');
                 errorAlert.style.display = 'block';
             } finally {
                 loginBtn.disabled = false;
-                loginBtn.textContent = 'Увійти';
+                loginBtn.textContent = skT('login.submit', 'Увійти');
             }
+        });
+        document.addEventListener('schoolkeeper:langchange', function () {
+            var btn = document.getElementById('loginBtn');
+            if (btn && !btn.disabled) btn.textContent = skT('login.submit', 'Увійти');
         });
     </script>
 }

@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SchoolKeeper.Models.Enums;
 
 #nullable disable
@@ -12,26 +11,20 @@ using SchoolKeeper.Models.Enums;
 namespace SchoolKeeper.Migrations
 {
     [DbContext(typeof(SchoolKeeperDbContext))]
-    [Migration("20251129143514_MakeDeviceIdNullable")]
-    partial class MakeDeviceIdNullable
+    [Migration("20260402130442_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.10")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
-
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
 
             modelBuilder.Entity("Device", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("DeviceGuid")
                         .HasMaxLength(36)
@@ -41,7 +34,7 @@ namespace SchoolKeeper.Migrations
                     b.Property<string>("DeviceName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("device_name");
 
                     b.Property<string>("DeviceTypeValue")
@@ -52,11 +45,11 @@ namespace SchoolKeeper.Migrations
 
                     b.Property<string>("Location")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("location");
 
                     b.Property<int?>("SchoolId")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("school_id");
 
                     b.Property<string>("StatusValue")
@@ -79,30 +72,28 @@ namespace SchoolKeeper.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
 
                     b.Property<int?>("DeviceId")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("device_id");
 
                     b.Property<string>("IncidentType")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("incident_type");
 
                     b.Property<int>("ReportedBy")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("reported_by");
 
                     b.Property<int?>("SchoolId")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("school_id");
 
                     b.Property<string>("SeverityValue")
@@ -118,7 +109,7 @@ namespace SchoolKeeper.Migrations
                         .HasColumnName("status");
 
                     b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("TEXT")
                         .HasColumnName("timestamp");
 
                     b.HasKey("Id");
@@ -137,15 +128,15 @@ namespace SchoolKeeper.Migrations
             modelBuilder.Entity("ParentStudent", b =>
                 {
                     b.Property<int>("ParentId")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("parent_id");
 
                     b.Property<int>("StudentId")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("student_id");
 
                     b.Property<int>("Id")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("ParentId", "StudentId");
 
@@ -158,16 +149,14 @@ namespace SchoolKeeper.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("GeneratedBy")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("generated_by");
 
                     b.Property<DateTime>("GeneratedOn")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("TEXT")
                         .HasColumnName("generated_on");
 
                     b.Property<DateOnly>("PeriodEnd")
@@ -179,7 +168,7 @@ namespace SchoolKeeper.Migrations
                         .HasColumnName("period_start");
 
                     b.Property<int>("SchoolId")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("school_id");
 
                     b.Property<string>("Summary")
@@ -198,15 +187,15 @@ namespace SchoolKeeper.Migrations
             modelBuilder.Entity("ReptIncident", b =>
                 {
                     b.Property<int>("ReptId")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("rept_id");
 
                     b.Property<int>("IncidentId")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("incident_id");
 
                     b.Property<int>("Id")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("ReptId", "IncidentId");
 
@@ -219,29 +208,27 @@ namespace SchoolKeeper.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Address")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("address");
 
                     b.Property<string>("ContactNumber")
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("contact_number");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("name");
 
                     b.Property<string>("Region")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("region");
 
                     b.HasKey("Id");
@@ -254,15 +241,15 @@ namespace SchoolKeeper.Migrations
             modelBuilder.Entity("StudentTeacher", b =>
                 {
                     b.Property<int>("StudentId")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("student_id");
 
                     b.Property<int>("TeacherId")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("teacher_id");
 
                     b.Property<int>("Id")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("StudentId", "TeacherId");
 
@@ -275,31 +262,29 @@ namespace SchoolKeeper.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("email");
 
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("full_name");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("password_hash");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("phone_number");
 
                     b.Property<string>("RoleValue")
@@ -309,7 +294,7 @@ namespace SchoolKeeper.Migrations
                         .HasColumnName("role");
 
                     b.Property<int>("SchoolId")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("school_id");
 
                     b.HasKey("Id");
@@ -325,15 +310,15 @@ namespace SchoolKeeper.Migrations
             modelBuilder.Entity("UserIncident", b =>
                 {
                     b.Property<int>("UserId")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("user_id");
 
                     b.Property<int>("IncidentId")
-                        .HasColumnType("integer")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("incident_id");
 
                     b.Property<int>("Id")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("UserId", "IncidentId");
 

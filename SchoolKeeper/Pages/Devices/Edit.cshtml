@@ -2,44 +2,44 @@
 @model SchoolKeeper.Pages.Devices.EditModel
 @{
     ViewData["Title"] = "Редагувати пристрій";
+    ViewData["I18nPage"] = "deviceEdit";
 }
 
 <div class="container">
-    <h2>Редагувати пристрій</h2>
+    <h2 data-i18n="devices.editTitle">Редагувати пристрій</h2>
 
     <form method="post">
         <div class="mb-3">
-            <label asp-for="Device.DeviceName" class="form-label">Назва пристрою</label>
+            <label asp-for="Device.DeviceName" class="form-label" data-i18n="devices.lbl.name">Назва пристрою</label>
             <input asp-for="Device.DeviceName" class="form-control" value="@Model.CurrentDevice.DeviceName" />
             <span asp-validation-for="Device.DeviceName" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Device.DeviceType" class="form-label">Тип пристрою</label>
+            <label asp-for="Device.DeviceType" class="form-label" data-i18n="devices.lbl.type">Тип пристрою</label>
             <select asp-for="Device.DeviceType" asp-items="Model.DeviceTypes" class="form-select">
-                <option value="">-- Оберіть тип --</option>
+                <option value="" data-i18n="devices.selectType">-- Оберіть тип --</option>
             </select>
             <span asp-validation-for="Device.DeviceType" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Device.Status" class="form-label">Статус</label>
+            <label asp-for="Device.Status" class="form-label" data-i18n="devices.lbl.status">Статус</label>
             <select asp-for="Device.Status" asp-items="Model.DeviceStatuses" class="form-select">
-                <option value="">-- Оберіть статус --</option>
+                <option value="" data-i18n="devices.selectStatus">-- Оберіть статус --</option>
             </select>
             <span asp-validation-for="Device.Status" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Device.Location" class="form-label">Розташування</label>
+            <label asp-for="Device.Location" class="form-label" data-i18n="devices.lbl.location">Розташування</label>
             <input asp-for="Device.Location" class="form-control" value="@Model.CurrentDevice.Location" />
             <span asp-validation-for="Device.Location" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <button type="submit" class="btn btn-primary">Зберегти</button>
-            <a asp-page="Index" class="btn btn-secondary">Скасувати</a>
+            <button type="submit" class="btn btn-primary" data-i18n="common.save">Зберегти</button>
+            <a asp-page="Index" class="btn btn-secondary" data-i18n="common.cancel">Скасувати</a>
         </div>
     </form>
 </div>
-

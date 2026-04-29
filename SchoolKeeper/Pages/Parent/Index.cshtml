@@ -2,16 +2,17 @@
 @model SchoolKeeper.Pages.Parent.IndexModel
 @{
     ViewData["Title"] = "Parent Dashboard";
+    ViewData["I18nPage"] = "parent";
 }
 
 <div class="container-fluid">
-    <h1 class="mb-4">Панель батька</h1>
+    <h1 class="mb-4" data-i18n="parent.title">Панель батька</h1>
 
     <div class="row mb-4">
         <div class="col-md-4 mb-3">
             <div class="card text-white bg-primary">
                 <div class="card-body">
-                    <h5 class="card-title">Інциденти</h5>
+                    <h5 class="card-title" data-i18n="parent.card.incidents">Інциденти</h5>
                     <h2 class="mb-0">@Model.RelatedIncidents</h2>
                 </div>
             </div>
@@ -19,7 +20,7 @@
         <div class="col-md-4 mb-3">
             <div class="card text-white bg-warning">
                 <div class="card-body">
-                    <h5 class="card-title">Активні інциденти</h5>
+                    <h5 class="card-title" data-i18n="parent.card.activeIncidents">Активні інциденти</h5>
                     <h2 class="mb-0">@Model.ActiveIncidents</h2>
                 </div>
             </div>
@@ -27,7 +28,7 @@
         <div class="col-md-4 mb-3">
             <div class="card text-white bg-secondary">
                 <div class="card-body">
-                    <h5 class="card-title">Звіти</h5>
+                    <h5 class="card-title" data-i18n="parent.card.reports">Звіти</h5>
                     <h2 class="mb-0">@Model.TotalReports</h2>
                 </div>
             </div>
@@ -38,14 +39,13 @@
         <div class="col-md-6 mb-3">
             <div class="card">
                 <div class="card-header">
-                    <h5>Швидкі дії</h5>
+                    <h5 data-i18n="parent.quickActions">Швидкі дії</h5>
                 </div>
                 <div class="card-body">
-                    <a asp-page="/Incidents/Index" class="btn btn-primary mb-2">Перегляд інцидентів</a><br>
-                    <a asp-page="/Reports/Index" class="btn btn-secondary mb-2">Перегляд звітів</a>
+                    <a asp-page="/Incidents/Index" class="btn btn-primary mb-2" data-i18n="parent.btn.viewIncidents">Перегляд інцидентів</a><br>
+                    <a asp-page="/Reports/Index" class="btn btn-secondary mb-2" data-i18n="parent.btn.viewReports">Перегляд звітів</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-

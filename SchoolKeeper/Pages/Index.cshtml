@@ -2,12 +2,13 @@
 @model SchoolKeeper.Pages.IndexModel
 @{
     ViewData["Title"] = "Головна";
+    ViewData["I18nPage"] = "home";
 }
 
 <div class="container">
     <div class="row">
         <div class="col-12">
-            <h1 class="display-4 mb-4">Ласкаво просимо до SchoolKeeper</h1>
+            <h1 class="display-4 mb-4" data-i18n="home.title">Ласкаво просимо до SchoolKeeper</h1>
         </div>
     </div>
 
@@ -16,10 +17,10 @@
             <div class="col-md-4 mb-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Користувач</h5>
+                        <h5 class="card-title" data-i18n="home.user">Користувач</h5>
                         <p class="card-text">
                             <strong>Email:</strong> <span id="userEmailDisplay"></span><br>
-                            <strong>Роль:</strong> <span id="userRoleDisplay"></span>
+                            <strong data-i18n="home.role">Роль:</strong> <span id="userRoleDisplay"></span>
                         </p>
                     </div>
                 </div>
@@ -27,9 +28,9 @@
             <div class="col-md-4 mb-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Швидкі дії</h5>
+                        <h5 class="card-title" data-i18n="home.quickActions">Швидкі дії</h5>
                         <p class="card-text">
-                            <a href="/Schools" class="btn btn-outline-primary btn-sm">Переглянути школи</a>
+                            <a href="/Schools" class="btn btn-outline-primary btn-sm" data-i18n="home.viewSchools">Переглянути школи</a>
                         </p>
                     </div>
                 </div>
@@ -37,7 +38,7 @@
             <div class="col-md-4 mb-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">API Документація</h5>
+                        <h5 class="card-title" data-i18n="home.apiDocs">API Документація</h5>
                         <p class="card-text">
                             <a href="/swagger" class="btn btn-outline-info btn-sm" target="_blank">Swagger UI</a>
                         </p>
@@ -52,10 +53,10 @@
             <div class="col-md-8 offset-md-2">
                 <div class="card">
                     <div class="card-body text-center">
-                        <h5 class="card-title">Для доступу до системи необхідно увійти</h5>
+                        <h5 class="card-title" data-i18n="home.unauthTitle">Для доступу до системи необхідно увійти</h5>
                         <p class="card-text">
-                            <a asp-page="/Login" class="btn btn-primary">Увійти</a>
-                            <a asp-page="/Register" class="btn btn-outline-primary">Зареєструватися</a>
+                            <a asp-page="/Login" class="btn btn-primary" data-i18n="home.login">Увійти</a>
+                            <a asp-page="/Register" class="btn btn-outline-primary" data-i18n="home.register">Зареєструватися</a>
                         </p>
                     </div>
                 </div>
@@ -83,7 +84,10 @@
                 const userEmailDisplay = document.getElementById('userEmailDisplay');
                 const userRoleDisplay = document.getElementById('userRoleDisplay');
                 if (userEmailDisplay) userEmailDisplay.textContent = userEmail;
-                if (userRoleDisplay) userRoleDisplay.textContent = userRole || 'Невідома';
+                if (userRoleDisplay) {
+                    var sk = window.SchoolKeeperI18n;
+                    userRoleDisplay.textContent = userRole || (sk ? sk.t('home.unknownRole') : 'Невідома');
+                }
             } else if (unauthenticatedContent) {
                 // Користувач не автентифікований
                 if (authenticatedContent) authenticatedContent.style.display = 'none';

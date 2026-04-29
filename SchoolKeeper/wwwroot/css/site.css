@@ -35,6 +35,24 @@ body {
   box-shadow: 0 2px 4px rgba(0,0,0,.1);
 }
 
+/* Text direction control in primary navbar */
+.navbar.bg-primary .sk-text-dir-select {
+  max-width: 10.5rem;
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.navbar.bg-primary .sk-text-dir-select:focus {
+  border-color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.2);
+}
+
+.navbar.bg-primary .sk-text-dir-select option {
+  color: #212529;
+  background-color: #fff;
+}
+
 .navbar-brand {
   font-weight: 700;
   font-size: 1.25rem;

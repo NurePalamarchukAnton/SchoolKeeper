@@ -1,0 +1,26 @@
+package com.schoolkeeper.app.navigation
+
+object Routes {
+    const val Splash = "splash"
+    const val Login = "login"
+    const val Register = "register"
+    const val Home = "home"
+    const val Schools = "schools"
+    const val Devices = "devices"
+    const val DeviceDetail = "device/{id}"
+    fun deviceDetail(id: Int) = "device/$id"
+    const val Incidents = "incidents"
+    const val IncidentDetail = "incident/{id}"
+    fun incidentDetail(id: Int) = "incident/$id"
+    const val Reports = "reports"
+    const val ReportDetail = "report/{id}"
+    fun reportDetail(id: Int) = "report/$id"
+    const val Admin = "admin"
+    const val AdminData = "admin_data"
+    const val Impersonate = "impersonate"
+    const val Security = "security"
+    const val Teacher = "teacher"
+    const val Parent = "parent"
+    const val Student = "student"
+    const val More = "more"
+}

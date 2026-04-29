@@ -2,10 +2,11 @@
 @model SchoolKeeper.Pages.Schools.IndexModel
 @{
     ViewData["Title"] = "Школи";
+    ViewData["I18nPage"] = "schools";
 }
 
 <div class="container-fluid">
-    <h1 class="mb-4">Школи, підключені до системи</h1>
+    <h1 class="mb-4" data-i18n="schools.title">Школи, підключені до системи</h1>
 
     @if (Model.Schools.Any())
     {
@@ -19,19 +20,19 @@
                             @if (!string.IsNullOrEmpty(school.Address))
                             {
                                 <p class="card-text">
-                                    <strong>Адреса:</strong> @school.Address
+                                    <strong data-i18n="schools.address">Адреса:</strong> @school.Address
                                 </p>
                             }
                             @if (!string.IsNullOrEmpty(school.Region))
                             {
                                 <p class="card-text">
-                                    <strong>Регіон:</strong> @school.Region
+                                    <strong data-i18n="schools.region">Регіон:</strong> @school.Region
                                 </p>
                             }
                             @if (!string.IsNullOrEmpty(school.ContactNumber))
                             {
                                 <p class="card-text">
-                                    <strong>Контактний номер:</strong> @school.ContactNumber
+                                    <strong data-i18n="schools.contact">Контактний номер:</strong> @school.ContactNumber
                                 </p>
                             }
                         </div>
@@ -43,8 +44,7 @@
     else
     {
         <div class="alert alert-info">
-            <p class="mb-0">На даний момент немає шкіл, підключених до системи.</p>
+            <p class="mb-0" data-i18n="schools.empty">На даний момент немає шкіл, підключених до системи.</p>
         </div>
     }
 </div>
-

@@ -1,0 +1,754 @@
+object-id-audit.txt
+Generated: 2026-04-06 17:32:54 +03:00
+Git branch: main
+Repo root: C:\Users\timpf\source\repos\SchoolKeeper
+
+Excluded: **/wwwroot/lib/**, **/node_modules/**, **/build/**, **/.gradle/**, *.min.js
+Method: PowerShell Select-String (rg not required). Re-run: .\scripts\collect-object-id-refs.ps1
+
+=== Triage notes (short) ===
+- DbSeeder.cs: test seed data uses relational links (school.Id, etc.), not arbitrary magic IDs.
+- Android AdminDataScreen: fallback ?: 1 for default school/user when lists empty - review UX.
+- RegisterScreen: schoolId default ?: 1 if parse fails.
+- Many matches are DTO property names (schoolId field) - normal; literals/fallbacks need closer review.
+
+
+=== Field names (schoolId, userId, deviceId, ...) ===
+Pattern: schoolId|userId|deviceId|incidentId|reportedBy|generatedBy|originalAdminId|SchoolId|UserId|DeviceId|IncidentId
+
+SchoolKeeper\Controllers\AuthController.cs:42:SchoolId = dto.SchoolId
+SchoolKeeper\Controllers\AuthController.cs:70:UserId = user.Id
+SchoolKeeper\Controllers\AuthController.cs:92:var targetUser = await _context.Users.FindAsync(dto.UserId);
+SchoolKeeper\Controllers\AuthController.cs:104:UserId = targetUser.Id,
+SchoolKeeper\Controllers\AuthController.cs:105:OriginalAdminId = adminId.ToString() // Сохраняем ID админа для выхода из режима
+SchoolKeeper\Controllers\AuthController.cs:120:if (dto != null && !string.IsNullOrEmpty(dto.OriginalAdminId) && int.TryParse(dto.OriginalAdminId, out adminId))
+SchoolKeeper\Controllers\AuthController.cs:125:else if (Request.Cookies.ContainsKey("originalAdminId") &&
+SchoolKeeper\Controllers\AuthController.cs:126:int.TryParse(Request.Cookies["originalAdminId"], out adminId))
+SchoolKeeper\Controllers\AuthController.cs:134:var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+SchoolKeeper\Controllers\AuthController.cs:135:if (string.IsNullOrEmpty(currentUserIdClaim) || !int.TryParse(currentUserIdClaim, out var currentUserId))
+SchoolKeeper\Controllers\AuthController.cs:140:var currentUser = await _context.Users.FindAsync(currentUserId);
+SchoolKeeper\Controllers\AuthController.cs:154:// Лучше всего - сохранять originalAdminId в cookie при входе в режим impersonation
+SchoolKeeper\Controllers\AuthController.cs:178:UserId = admin.Id
+SchoolKeeper\Controllers\AuthController.cs:179:// Не передаем OriginalAdminId, так как выходим из режима impersonation
+SchoolKeeper\Controllers\DeviceController.cs:50:query = _dataFilterService.FilterBySchool(query, user.SchoolId);
+SchoolKeeper\Controllers\DeviceController.cs:74:if (user.Role != UserRole.Admin && dto.SchoolId != user.SchoolId)
+SchoolKeeper\Controllers\DeviceController.cs:93:if (user.Role != UserRole.Admin && device.SchoolId != user.SchoolId)
+SchoolKeeper\Controllers\DeviceController.cs:117:if (user.Role != UserRole.Admin && device.SchoolId != user.SchoolId)
+SchoolKeeper\Controllers\IncidentController.cs:48:query = _dataFilterService.FilterBySchool(query, user.SchoolId);
+SchoolKeeper\Controllers\IncidentController.cs:83:// Если у инцидента нет SchoolId, доступ есть только у Admin
+SchoolKeeper\Controllers\IncidentController.cs:86:if (!incident.SchoolId.HasValue || incident.SchoolId.Value != user.SchoolId)
+SchoolKeeper\Controllers\IncidentController.cs:95:if (incident.ReportedBy != user.Id)
+SchoolKeeper\Controllers\IncidentController.cs:104:.AnyAsync(ui => ui.IncidentId == id && ui.UserId == user.Id);
+SchoolKeeper\Controllers\IncidentController.cs:117:.Where(ui => ui.IncidentId == id)
+SchoolKeeper\Controllers\IncidentController.cs:122:UserId = ui.UserId,
+SchoolKeeper\Controllers\IncidentController.cs:145:dto.ReportedBy = user.Id;
+SchoolKeeper\Controllers\IncidentController.cs:148:// Если SchoolId не указан (null), только Admin может создавать такие инциденты
+SchoolKeeper\Controllers\IncidentController.cs:151:if (!dto.SchoolId.HasValue || dto.SchoolId.Value != user.SchoolId)
+SchoolKeeper\Controllers\IncidentController.cs:184:// Если устройство не найдено - создаем его без SchoolId (админ назначит позже)
+SchoolKeeper\Controllers\IncidentController.cs:196:// Создаем новое устройство без SchoolId
+SchoolKeeper\Controllers\IncidentController.cs:204:SchoolId = null // Админ назначит позже
+SchoolKeeper\Controllers\IncidentController.cs:211:// Проверяем, что у устройства установлен SchoolId
+SchoolKeeper\Controllers\IncidentController.cs:212:// Если SchoolId не установлен, инциденты не создаются - админ должен сначала назначить школу устройству
+SchoolKeeper\Controllers\IncidentController.cs:213:if (!device.SchoolId.HasValue)
+SchoolKeeper\Controllers\IncidentController.cs:218:// Определяем SchoolId для инцидента из устройства
+SchoolKeeper\Controllers\IncidentController.cs:219:int schoolIdForIncident = device.SchoolId.Value;
+SchoolKeeper\Controllers\IncidentController.cs:221:// Находим пользователя для ReportedBy
+SchoolKeeper\Controllers\IncidentController.cs:225:.FirstOrDefaultAsync(u => u.SchoolId == schoolIdForIncident && u.RoleValue == UserRole.Security.ToString())
+SchoolKeeper\Controllers\IncidentController.cs:227:.FirstOrDefaultAsync(u => u.SchoolId == schoolIdForIncident && u.RoleValue == UserRole.Admin.ToString());
+SchoolKeeper\Controllers\IncidentController.cs:231:throw new NotFoundException($"No Security or Admin user found for school ID {schoolIdForIncident}.");
+SchoolKeeper\Controllers\IncidentController.cs:252:// SchoolId берется из устройства (уже проверено, что он установлен)
+SchoolKeeper\Controllers\IncidentController.cs:255:DeviceId = device.Id,
+SchoolKeeper\Controllers\IncidentController.cs:256:ReportedBy = reporter.Id,
+SchoolKeeper\Controllers\IncidentController.cs:262:SchoolId = schoolIdForIncident
+SchoolKeeper\Controllers\IncidentController.cs:291:// Если у инцидента нет SchoolId, доступ есть только у Admin
+SchoolKeeper\Controllers\IncidentController.cs:294:if (!incident.SchoolId.HasValue || incident.SchoolId.Value != user.SchoolId)
+SchoolKeeper\Controllers\IncidentController.cs:322:// Если у инцидента нет SchoolId, доступ есть только у Admin
+SchoolKeeper\Controllers\IncidentController.cs:325:if (!incident.SchoolId.HasValue || incident.SchoolId.Value != user.SchoolId)
+SchoolKeeper\Controllers\IncidentController.cs:332:if (user.Role == UserRole.Teacher && incident.ReportedBy != user.Id)
+SchoolKeeper\Controllers\IncidentController.cs:368:if (!incident.SchoolId.HasValue || incident.SchoolId.Value != user.SchoolId)
+SchoolKeeper\Controllers\IncidentController.cs:375:var targetUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.UserId);
+SchoolKeeper\Controllers\IncidentController.cs:378:if (user.Role != UserRole.Admin && targetUser.SchoolId != user.SchoolId)
+SchoolKeeper\Controllers\IncidentController.cs:385:.FirstOrDefaultAsync(ui => ui.IncidentId == id && ui.UserId == dto.UserId);
+SchoolKeeper\Controllers\IncidentController.cs:395:UserId = dto.UserId,
+SchoolKeeper\Controllers\IncidentController.cs:396:IncidentId = id
+SchoolKeeper\Controllers\IncidentController.cs:407:[HttpDelete("{id:int}/remove-user/{userId:int}")]
+SchoolKeeper\Controllers\IncidentController.cs:409:public async Task<ActionResult<ResponseWrapper<object>>> RemoveUserFromIncident(int id, int userId)
+SchoolKeeper\Controllers\IncidentController.cs:426:if (!incident.SchoolId.HasValue || incident.SchoolId.Value != user.SchoolId)
+SchoolKeeper\Controllers\IncidentController.cs:433:.FirstOrDefaultAsync(ui => ui.IncidentId == id && ui.UserId == userId);
+SchoolKeeper\Controllers\ReptController.cs:54:query = _dataFilterService.FilterBySchool(query, user.SchoolId);
+SchoolKeeper\Controllers\ReptController.cs:84:dto.GeneratedBy = user.Id;
+SchoolKeeper\Controllers\ReptController.cs:87:if (user.Role != UserRole.Admin && dto.SchoolId != user.SchoolId)
+SchoolKeeper\Controllers\ReptController.cs:117:if (user.Role != UserRole.Admin && report.SchoolId != user.SchoolId)
+SchoolKeeper\Controllers\ReptController.cs:141:if (user.Role != UserRole.Admin && report.SchoolId != user.SchoolId)
+SchoolKeeper\Controllers\ReptController.cs:170:var targetSchoolId = user.Role != Models.Enums.UserRole.Admin ? user.SchoolId : dto.SchoolId;
+SchoolKeeper\Controllers\ReptController.cs:172:if (user.Role != Models.Enums.UserRole.Admin && targetSchoolId != user.SchoolId)
+SchoolKeeper\Controllers\ReptController.cs:179:.Where(i => i.SchoolId == targetSchoolId &&
+SchoolKeeper\Controllers\ReptController.cs:185:.Where(d => d.SchoolId == targetSchoolId)
+SchoolKeeper\Controllers\ReptController.cs:201:SchoolId = targetSchoolId,
+SchoolKeeper\Controllers\ReptController.cs:202:GeneratedBy = user.Id,
+SchoolKeeper\Controllers\ReptController.cs:216:IncidentId = incident.Id
+SchoolKeeper\Controllers\ReptController.cs:250:if (user.Role != Models.Enums.UserRole.Admin && report.SchoolId != user.SchoolId)
+SchoolKeeper\Controllers\ReptController.cs:257:.Where(i => i.SchoolId == report.SchoolId &&
+SchoolKeeper\Controllers\ReptController.cs:265:.Where(d => d.SchoolId == report.SchoolId)
+SchoolKeeper\Controllers\ReptController.cs:287:report.SchoolId,
+SchoolKeeper\Controllers\ReptController.cs:330:csv.AppendLine($"School ID,{report.SchoolId}");
+SchoolKeeper\Controllers\ReptController.cs:489:public int SchoolId { get; set; }
+SchoolKeeper\Controllers\SchoolController.cs:41:query = query.Where(s => s.Id == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:30:[FromQuery] int? schoolId,
+SchoolKeeper\Controllers\StatisticsController.cs:48:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:50:query = query.Where(d => d.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:54:query = query.Where(d => d.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:91:public async Task<ActionResult<ResponseWrapper<Dictionary<string, int>>>> GetDevicesByType([FromQuery] int? schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:104:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:106:query = query.Where(d => d.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:110:query = query.Where(d => d.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:122:public async Task<ActionResult<ResponseWrapper<Dictionary<string, int>>>> GetDevicesByStatus([FromQuery] int? schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:135:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:137:query = query.Where(d => d.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:141:query = query.Where(d => d.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:153:public async Task<ActionResult<ResponseWrapper<Dictionary<string, int>>>> GetDevicesByLocation([FromQuery] int? schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:166:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:168:query = query.Where(d => d.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:172:query = query.Where(d => d.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:187:[FromQuery] int? schoolId,
+SchoolKeeper\Controllers\StatisticsController.cs:188:[FromQuery] int? deviceId,
+SchoolKeeper\Controllers\StatisticsController.cs:208:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:210:query = query.Where(i => i.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:214:query = query.Where(i => i.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:220:query = query.Where(i => i.ReportedBy == user.Id);
+SchoolKeeper\Controllers\StatisticsController.cs:224:if (deviceId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:226:query = query.Where(i => i.DeviceId == deviceId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:273:.Where(i => i.DeviceId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:274:.GroupBy(i => i.DeviceId!.Value)
+SchoolKeeper\Controllers\StatisticsController.cs:286:public async Task<ActionResult<ResponseWrapper<Dictionary<string, int>>>> GetIncidentsByType([FromQuery] int? schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:301:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:303:query = query.Where(i => i.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:307:query = query.Where(i => i.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:312:query = query.Where(i => i.ReportedBy == user.Id);
+SchoolKeeper\Controllers\StatisticsController.cs:324:public async Task<ActionResult<ResponseWrapper<Dictionary<string, int>>>> GetIncidentsBySeverity([FromQuery] int? schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:339:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:341:query = query.Where(i => i.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:345:query = query.Where(i => i.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:350:query = query.Where(i => i.ReportedBy == user.Id);
+SchoolKeeper\Controllers\StatisticsController.cs:362:public async Task<ActionResult<ResponseWrapper<Dictionary<string, int>>>> GetIncidentsByStatus([FromQuery] int? schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:377:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:379:query = query.Where(i => i.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:383:query = query.Where(i => i.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:388:query = query.Where(i => i.ReportedBy == user.Id);
+SchoolKeeper\Controllers\StatisticsController.cs:401:[FromQuery] int? schoolId,
+SchoolKeeper\Controllers\StatisticsController.cs:418:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:420:query = query.Where(i => i.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:424:query = query.Where(i => i.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:429:query = query.Where(i => i.ReportedBy == user.Id);
+SchoolKeeper\Controllers\StatisticsController.cs:456:public async Task<ActionResult<ResponseWrapper<Dictionary<int, int>>>> GetIncidentsByDevice([FromQuery] int? schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:471:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:473:query = query.Where(i => i.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:477:query = query.Where(i => i.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:482:query = query.Where(i => i.ReportedBy == user.Id);
+SchoolKeeper\Controllers\StatisticsController.cs:486:.Where(i => i.DeviceId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:487:.GroupBy(i => i.DeviceId!.Value)
+SchoolKeeper\Controllers\StatisticsController.cs:498:[FromQuery] int? schoolId,
+SchoolKeeper\Controllers\StatisticsController.cs:511:var targetSchoolId = schoolId ?? (user.Role == UserRole.Admin ? (int?)null : user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:515:if (targetSchoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:517:devicesQuery = devicesQuery.Where(d => d.SchoolId == targetSchoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:538:if (targetSchoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:540:incidentsQuery = incidentsQuery.Where(i => i.SchoolId == targetSchoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:572:.Where(i => i.DeviceId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:573:.GroupBy(i => i.DeviceId!.Value)
+SchoolKeeper\Controllers\StatisticsController.cs:580:var school = targetSchoolId.HasValue
+SchoolKeeper\Controllers\StatisticsController.cs:581:? await _context.Schools.FirstOrDefaultAsync(s => s.Id == targetSchoolId.Value)
+SchoolKeeper\Controllers\StatisticsController.cs:588:SchoolId = targetSchoolId ?? 0,
+SchoolKeeper\Controllers\StatisticsController.cs:621:[HttpGet("school/{schoolId:int}")]
+SchoolKeeper\Controllers\StatisticsController.cs:622:public async Task<ActionResult<ResponseWrapper<SchoolStatisticsDto>>> GetSchoolStatistics(int schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:633:if (user.Role != UserRole.Admin && user.SchoolId != schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:638:var school = await _context.Schools.FirstOrDefaultAsync(s => s.Id == schoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:643:SchoolId = schoolId,
+SchoolKeeper\Controllers\StatisticsController.cs:645:TotalUsers = await _context.Users.CountAsync(u => u.SchoolId == schoolId),
+SchoolKeeper\Controllers\StatisticsController.cs:646:TotalDevices = await _context.Devices.CountAsync(d => d.SchoolId == schoolId),
+SchoolKeeper\Controllers\StatisticsController.cs:647:TotalIncidents = await _context.Incidents.CountAsync(i => i.SchoolId == schoolId),
+SchoolKeeper\Controllers\StatisticsController.cs:649:.CountAsync(i => i.SchoolId == schoolId && i.StatusValue == IncidentStatus.Active.ToString()),
+SchoolKeeper\Controllers\StatisticsController.cs:651:.CountAsync(i => i.SchoolId == schoolId && i.StatusValue == IncidentStatus.Resolved.ToString()),
+SchoolKeeper\Controllers\StatisticsController.cs:652:TotalReports = await _context.Reports.CountAsync(r => r.SchoolId == schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:659:[HttpGet("user/{userId:int}")]
+SchoolKeeper\Controllers\StatisticsController.cs:660:public async Task<ActionResult<ResponseWrapper<UserStatisticsDto>>> GetUserStatistics(int userId)
+SchoolKeeper\Controllers\StatisticsController.cs:666:if (user.Role != UserRole.Admin && user.Role != UserRole.Security && user.Id != userId)
+SchoolKeeper\Controllers\StatisticsController.cs:671:var targetUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+SchoolKeeper\Controllers\StatisticsController.cs:674:if (user.Role == UserRole.Security && targetUser.SchoolId != user.SchoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:681:UserId = userId,
+SchoolKeeper\Controllers\StatisticsController.cs:683:TotalIncidents = await _context.Incidents.CountAsync(i => i.ReportedBy == userId),
+SchoolKeeper\Controllers\StatisticsController.cs:685:.CountAsync(i => i.ReportedBy == userId && i.StatusValue == IncidentStatus.Active.ToString()),
+SchoolKeeper\Controllers\StatisticsController.cs:687:.CountAsync(i => i.ReportedBy == userId && i.StatusValue == IncidentStatus.Resolved.ToString()),
+SchoolKeeper\Controllers\StatisticsController.cs:688:TotalReports = await _context.Reports.CountAsync(r => r.GeneratedBy == userId)
+SchoolKeeper\Controllers\StatisticsController.cs:698:public async Task<ActionResult<ResponseWrapper<ResolutionTimeDto>>> GetResolutionTime([FromQuery] int? schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:713:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:715:query = query.Where(i => i.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:719:query = query.Where(i => i.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:755:public async Task<ActionResult<ResponseWrapper<IncidentTrendsDto>>> GetIncidentTrends([FromQuery] int? schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:768:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:770:query = query.Where(i => i.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:774:query = query.Where(i => i.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:807:public async Task<ActionResult<ResponseWrapper<List<DeviceUptimeDto>>>> GetDeviceUptime([FromQuery] int? schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:820:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:822:devicesQuery = devicesQuery.Where(d => d.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:826:devicesQuery = devicesQuery.Where(d => d.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:842:DeviceId = d.Id,
+SchoolKeeper\Controllers\StatisticsController.cs:855:public async Task<ActionResult<ResponseWrapper<List<DeviceIncidentRateDto>>>> GetDeviceIncidentRate([FromQuery] int? schoolId)
+SchoolKeeper\Controllers\StatisticsController.cs:868:if (schoolId.HasValue)
+SchoolKeeper\Controllers\StatisticsController.cs:870:devicesQuery = devicesQuery.Where(d => d.SchoolId == schoolId.Value);
+SchoolKeeper\Controllers\StatisticsController.cs:874:devicesQuery = devicesQuery.Where(d => d.SchoolId == user.SchoolId);
+SchoolKeeper\Controllers\StatisticsController.cs:895:DeviceId = d.Id,
+SchoolKeeper\Controllers\UserController.cs:47:query = _dataFilterService.FilterBySchool(query, user.SchoolId);
+SchoolKeeper\Controllers\UserController.cs:90:if (targetUser.SchoolId != user.SchoolId)
+SchoolKeeper\Controllers\UserController.cs:132:SchoolId = dto.SchoolId
+SchoolKeeper\Controllers\UserController.cs:184:if (dto.SchoolId.HasValue)
+SchoolKeeper\Controllers\UserController.cs:185:existing.SchoolId = dto.SchoolId.Value;
+SchoolKeeper\DTO\AddUserToIncidentDto.cs:5:public int UserId { get; set; }
+SchoolKeeper\DTO\AuthResponse.cs:8:public int UserId { get; set; }
+SchoolKeeper\DTO\AuthResponse.cs:9:public string? OriginalAdminId { get; set; }
+SchoolKeeper\DTO\DeviceDto.cs:15:public int? SchoolId { get; set; }
+SchoolKeeper\DTO\DeviceDto.cs:25:public int? SchoolId { get; set; }
+SchoolKeeper\DTO\DeviceDto.cs:34:public int? SchoolId { get; set; }
+SchoolKeeper\DTO\ImpersonateDto.cs:5:public int UserId { get; set; }
+SchoolKeeper\DTO\IncidentDto.cs:8:public int? DeviceId { get; set; }
+SchoolKeeper\DTO\IncidentDto.cs:9:public int ReportedBy { get; set; }
+SchoolKeeper\DTO\IncidentDto.cs:17:public int? SchoolId { get; set; }
+SchoolKeeper\DTO\IncidentDto.cs:23:public int UserId { get; set; }
+SchoolKeeper\DTO\IncidentDto.cs:31:public int DeviceId { get; set; }
+SchoolKeeper\DTO\IncidentDto.cs:32:public int ReportedBy { get; set; }
+SchoolKeeper\DTO\IncidentDto.cs:38:public int? SchoolId { get; set; }
+SchoolKeeper\DTO\IncidentDto.cs:43:public int? DeviceId { get; set; }
+SchoolKeeper\DTO\IncidentDto.cs:44:public int? ReportedBy { get; set; }
+SchoolKeeper\DTO\IncidentDto.cs:50:public int? SchoolId { get; set; }
+SchoolKeeper\DTO\RegisterDto.cs:13:public int SchoolId { get; set; }
+SchoolKeeper\DTO\ReptDto.cs:6:public int SchoolId { get; set; }
+SchoolKeeper\DTO\ReptDto.cs:7:public int GeneratedBy { get; set; }
+SchoolKeeper\DTO\ReptDto.cs:16:public int SchoolId { get; set; }
+SchoolKeeper\DTO\ReptDto.cs:17:public int GeneratedBy { get; set; }
+SchoolKeeper\DTO\ReptDto.cs:26:public int? SchoolId { get; set; }
+SchoolKeeper\DTO\ReptDto.cs:27:public int? GeneratedBy { get; set; }
+SchoolKeeper\DTO\ReptIncidentDto.cs:7:public int IncidentId { get; set; }
+SchoolKeeper\DTO\ReptIncidentDto.cs:13:public int IncidentId { get; set; }
+SchoolKeeper\DTO\StatisticsDto.cs:32:public int SchoolId { get; set; }
+SchoolKeeper\DTO\StatisticsDto.cs:64:public int SchoolId { get; set; }
+SchoolKeeper\DTO\StatisticsDto.cs:76:public int UserId { get; set; }
+SchoolKeeper\DTO\StatisticsDto.cs:101:public int DeviceId { get; set; }
+SchoolKeeper\DTO\StatisticsDto.cs:110:public int DeviceId { get; set; }
+SchoolKeeper\DTO\StopImpersonationDto.cs:5:public string? OriginalAdminId { get; set; }
+SchoolKeeper\DTO\UserDto.cs:13:public int SchoolId { get; set; }
+SchoolKeeper\DTO\UserDto.cs:23:public int SchoolId { get; set; }
+SchoolKeeper\DTO\UserDto.cs:33:public int? SchoolId { get; set; }
+SchoolKeeper\DTO\UserIncidentDto.cs:6:public int UserId { get; set; }
+SchoolKeeper\DTO\UserIncidentDto.cs:7:public int IncidentId { get; set; }
+SchoolKeeper\DTO\UserIncidentDto.cs:12:public int UserId { get; set; }
+SchoolKeeper\DTO\UserIncidentDto.cs:13:public int IncidentId { get; set; }
+SchoolKeeper\Middleware\CookieCleanupMiddleware.cs:23:context.Response.Cookies.Delete("originalAdminId");
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:51:b.Property<int?>("SchoolId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:66:b.HasIndex("SchoolId");
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:81:b.Property<int?>("DeviceId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:91:b.Property<int>("ReportedBy")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:95:b.Property<int?>("SchoolId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:117:b.HasIndex("DeviceId");
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:119:b.HasIndex("ReportedBy");
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:121:b.HasIndex("SchoolId");
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:154:b.Property<int>("GeneratedBy")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:170:b.Property<int>("SchoolId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:180:b.HasIndex("GeneratedBy");
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:182:b.HasIndex("SchoolId");
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:193:b.Property<int>("IncidentId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:200:b.HasKey("ReptId", "IncidentId");
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:202:b.HasIndex("IncidentId");
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:296:b.Property<int>("SchoolId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:305:b.HasIndex("SchoolId");
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:312:b.Property<int>("UserId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:316:b.Property<int>("IncidentId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:323:b.HasKey("UserId", "IncidentId");
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:325:b.HasIndex("IncidentId");
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:334:.HasForeignKey("SchoolId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:344:.HasForeignKey("DeviceId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:349:.HasForeignKey("ReportedBy")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:355:.HasForeignKey("SchoolId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:388:.HasForeignKey("GeneratedBy")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:394:.HasForeignKey("SchoolId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:407:.HasForeignKey("IncidentId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:445:.HasForeignKey("SchoolId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:456:.HasForeignKey("IncidentId")
+SchoolKeeper\Migrations\20260402130442_InitialCreate.Designer.cs:462:.HasForeignKey("UserId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:48:b.Property<int?>("SchoolId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:63:b.HasIndex("SchoolId");
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:78:b.Property<int?>("DeviceId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:88:b.Property<int>("ReportedBy")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:92:b.Property<int?>("SchoolId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:114:b.HasIndex("DeviceId");
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:116:b.HasIndex("ReportedBy");
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:118:b.HasIndex("SchoolId");
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:151:b.Property<int>("GeneratedBy")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:167:b.Property<int>("SchoolId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:177:b.HasIndex("GeneratedBy");
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:179:b.HasIndex("SchoolId");
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:190:b.Property<int>("IncidentId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:197:b.HasKey("ReptId", "IncidentId");
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:199:b.HasIndex("IncidentId");
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:293:b.Property<int>("SchoolId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:302:b.HasIndex("SchoolId");
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:309:b.Property<int>("UserId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:313:b.Property<int>("IncidentId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:320:b.HasKey("UserId", "IncidentId");
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:322:b.HasIndex("IncidentId");
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:331:.HasForeignKey("SchoolId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:341:.HasForeignKey("DeviceId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:346:.HasForeignKey("ReportedBy")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:352:.HasForeignKey("SchoolId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:385:.HasForeignKey("GeneratedBy")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:391:.HasForeignKey("SchoolId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:404:.HasForeignKey("IncidentId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:442:.HasForeignKey("SchoolId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:453:.HasForeignKey("IncidentId")
+SchoolKeeper\Migrations\SchoolKeeperDbContextModelSnapshot.cs:459:.HasForeignKey("UserId")
+SchoolKeeper\Models\Device.cs:23:[Column("school_id")] public int? SchoolId { get; set; }
+SchoolKeeper\Models\Device.cs:25:[ForeignKey(nameof(SchoolId))]
+SchoolKeeper\Models\Incident.cs:12:[Column("device_id")] public int? DeviceId { get; set; }
+SchoolKeeper\Models\Incident.cs:13:[Column("reported_by")] public int ReportedBy { get; set; }
+SchoolKeeper\Models\Incident.cs:21:[Column("school_id")] public int? SchoolId { get; set; }
+SchoolKeeper\Models\Incident.cs:24:[ForeignKey(nameof(DeviceId))]
+SchoolKeeper\Models\Incident.cs:25:[DeleteBehavior(DeleteBehavior.SetNull)]   // При удалении устройства устанавливаем DeviceId в NULL, сохраняя историю инцидентов
+SchoolKeeper\Models\Incident.cs:28:[ForeignKey(nameof(ReportedBy))]
+SchoolKeeper\Models\Incident.cs:32:[ForeignKey(nameof(SchoolId))]
+SchoolKeeper\Models\Rept.cs:10:[Column("school_id")] public int SchoolId { get; set; }
+SchoolKeeper\Models\Rept.cs:11:[Column("generated_by")] public int GeneratedBy { get; set; }
+SchoolKeeper\Models\Rept.cs:18:[ForeignKey(nameof(SchoolId))]
+SchoolKeeper\Models\Rept.cs:22:[ForeignKey(nameof(GeneratedBy))]
+SchoolKeeper\Models\ReptIncident.cs:6:[PrimaryKey(nameof(ReptId), nameof(IncidentId))]
+SchoolKeeper\Models\ReptIncident.cs:10:[Column("incident_id")] public int IncidentId { get; set; }
+SchoolKeeper\Models\ReptIncident.cs:16:[ForeignKey(nameof(IncidentId))]
+SchoolKeeper\Models\User.cs:20:[Column("school_id")] public int SchoolId { get; set; }
+SchoolKeeper\Models\User.cs:22:[ForeignKey(nameof(SchoolId))]
+SchoolKeeper\Models\UserIncident.cs:7:[PrimaryKey(nameof(UserId), nameof(IncidentId))]
+SchoolKeeper\Models\UserIncident.cs:10:[Column("user_id")] public int UserId { get; set; }
+SchoolKeeper\Models\UserIncident.cs:11:[Column("incident_id")] public int IncidentId { get; set; }
+SchoolKeeper\Models\UserIncident.cs:13:[ForeignKey(nameof(UserId))]
+SchoolKeeper\Models\UserIncident.cs:17:[ForeignKey(nameof(IncidentId))]
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:27:<label for="userId" class="form-label">Оберіть користувача *</label>
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:28:<select class="form-select" id="userId" name="userId" required>
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:85:const userIdSelect = document.getElementById('userId');
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:95:userIdSelect.innerHTML = '<option value="">Оберіть користувача</option>';
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:100:userIdSelect.appendChild(option);
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:103:userIdSelect.innerHTML = '<option value="">Помилка завантаження користувачів</option>';
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:107:userIdSelect.innerHTML = '<option value="">Помилка завантаження користувачів</option>';
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:114:const userId = userIdSelect.value;
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:115:if (!userId) {
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:127:body: JSON.stringify({ userId: parseInt(userId) })
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:135:localStorage.setItem('userId', data.data.userId);
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:137:localStorage.setItem('originalAdminId', data.data.originalAdminId || '');
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:142:document.cookie = `originalAdminId=${data.data.originalAdminId || ''}; path=/; max-age=43200`;
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:172:// Получаем originalAdminId из localStorage
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:173:const originalAdminId = localStorage.getItem('originalAdminId');
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:176:body: JSON.stringify({ originalAdminId: originalAdminId || '' })
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:184:localStorage.setItem('userId', data.data.userId);
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:186:localStorage.removeItem('originalAdminId');
+SchoolKeeper\Pages\Admin\Impersonate.cshtml:191:document.cookie = 'originalAdminId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+SchoolKeeper\Pages\Admin\Impersonate.cshtml.cs:39:var impersonatedUserId = _userService.GetCurrentUserId(HttpContext);
+SchoolKeeper\Pages\Admin\Impersonate.cshtml.cs:40:if (impersonatedUserId.HasValue)
+SchoolKeeper\Pages\Admin\Impersonate.cshtml.cs:42:var impersonatedUser = await _userService.GetUserByIdAsync(impersonatedUserId.Value);
+SchoolKeeper\Pages\Admin\Index.cshtml:289:<select class="form-select" name="schoolId" required>
+SchoolKeeper\Pages\Admin\Index.cshtml:339:<select class="form-select" name="schoolId" required>
+SchoolKeeper\Pages\Admin\Index.cshtml:365:<select class="form-select" name="deviceId" required>
+SchoolKeeper\Pages\Admin\Index.cshtml:371:<select class="form-select" name="reportedBy" required>
+SchoolKeeper\Pages\Admin\Index.cshtml:405:<select class="form-select" name="schoolId" required>
+SchoolKeeper\Pages\Admin\Index.cshtml:439:<select class="form-select" name="schoolId" required>
+SchoolKeeper\Pages\Admin\Index.cshtml:445:<select class="form-select" name="generatedBy" required>
+SchoolKeeper\Pages\Devices\Create.cshtml:38:<label asp-for="Device.SchoolId" class="form-label">Школа</label>
+SchoolKeeper\Pages\Devices\Create.cshtml:39:<select asp-for="Device.SchoolId" asp-items="Model.Schools" class="form-select" required></select>
+SchoolKeeper\Pages\Devices\Create.cshtml:40:<span asp-validation-for="Device.SchoolId" class="text-danger"></span>
+SchoolKeeper\Pages\Devices\Create.cshtml:45:<input type="hidden" asp-for="Device.SchoolId" />
+SchoolKeeper\Pages\Devices\Create.cshtml.cs:29:public int? UserSchoolId { get; set; }
+SchoolKeeper\Pages\Devices\Create.cshtml.cs:42:UserSchoolId = user.SchoolId;
+SchoolKeeper\Pages\Devices\Create.cshtml.cs:53:Device.SchoolId = user.SchoolId;
+SchoolKeeper\Pages\Devices\Create.cshtml.cs:54:Schools = new SelectList(await _context.Schools.Where(s => s.Id == user.SchoolId).ToListAsync(), "Id", "Name");
+SchoolKeeper\Pages\Devices\Create.cshtml.cs:69:if (!IsAdmin && Device.SchoolId != user.SchoolId)
+SchoolKeeper\Pages\Devices\Create.cshtml.cs:88:SchoolId = Device.SchoolId
+SchoolKeeper\Pages\Devices\Details.cshtml.cs:44:if (user.Role != UserRole.Admin && device.SchoolId != user.SchoolId)
+SchoolKeeper\Pages\Devices\Details.cshtml.cs:56:SchoolId = device.SchoolId
+SchoolKeeper\Pages\Devices\Edit.cshtml.cs:46:if (user.Role != UserRole.Admin && device.SchoolId != user.SchoolId)
+SchoolKeeper\Pages\Devices\Edit.cshtml.cs:58:SchoolId = device.SchoolId
+SchoolKeeper\Pages\Devices\Edit.cshtml.cs:67:SchoolId = device.SchoolId
+SchoolKeeper\Pages\Devices\Edit.cshtml.cs:89:if (user.Role != UserRole.Admin && device.SchoolId != user.SchoolId)
+SchoolKeeper\Pages\Devices\Edit.cshtml.cs:103:SchoolId = device.SchoolId
+SchoolKeeper\Pages\Devices\Index.cshtml.cs:51:query = query.Where(d => d.SchoolId == user.SchoolId);
+SchoolKeeper\Pages\Devices\Index.cshtml.cs:65:SchoolId = d.SchoolId
+SchoolKeeper\Pages\Incidents\Create.cshtml:12:<label asp-for="Incident.DeviceId" class="form-label">Пристрій</label>
+SchoolKeeper\Pages\Incidents\Create.cshtml:13:<select asp-for="Incident.DeviceId" asp-items="Model.Devices" class="form-select" required></select>
+SchoolKeeper\Pages\Incidents\Create.cshtml:14:<span asp-validation-for="Incident.DeviceId" class="text-danger"></span>
+SchoolKeeper\Pages\Incidents\Create.cshtml:41:<input type="hidden" asp-for="Incident.ReportedBy" />
+SchoolKeeper\Pages\Incidents\Create.cshtml:42:<input type="hidden" asp-for="Incident.SchoolId" />
+SchoolKeeper\Pages\Incidents\Create.cshtml.cs:44:devicesQuery = devicesQuery.Where(d => d.SchoolId == user.SchoolId);
+SchoolKeeper\Pages\Incidents\Create.cshtml.cs:51:Incident.ReportedBy = user.Id;
+SchoolKeeper\Pages\Incidents\Create.cshtml.cs:52:Incident.SchoolId = user.SchoolId;
+SchoolKeeper\Pages\Incidents\Create.cshtml.cs:73:devicesQuery = devicesQuery.Where(d => d.SchoolId == user.SchoolId);
+SchoolKeeper\Pages\Incidents\Create.cshtml.cs:82:if (user.Role != Models.Enums.UserRole.Admin && Incident.SchoolId != user.SchoolId)
+SchoolKeeper\Pages\Incidents\Create.cshtml.cs:86:var devicesQuery = _context.Devices.Where(d => d.SchoolId == user.SchoolId);
+SchoolKeeper\Pages\Incidents\Create.cshtml.cs:93:Incident.ReportedBy = user.Id;
+SchoolKeeper\Pages\Incidents\Create.cshtml.cs:101:DeviceId = Incident.DeviceId,
+SchoolKeeper\Pages\Incidents\Create.cshtml.cs:102:ReportedBy = Incident.ReportedBy,
+SchoolKeeper\Pages\Incidents\Create.cshtml.cs:108:SchoolId = Incident.SchoolId
+SchoolKeeper\Pages\Incidents\Details.cshtml:172:async function addUserToIncident(incidentId) {
+SchoolKeeper\Pages\Incidents\Details.cshtml:173:const userId = document.getElementById('userSelect').value;
+SchoolKeeper\Pages\Incidents\Details.cshtml:174:if (!userId) {
+SchoolKeeper\Pages\Incidents\Details.cshtml:180:const result = await auth.apiRequest(`/Incident/${incidentId}/add-user`, {
+SchoolKeeper\Pages\Incidents\Details.cshtml:182:body: JSON.stringify({ userId: parseInt(userId) })
+SchoolKeeper\Pages\Incidents\Details.cshtml:205:async function removeUserFromIncident(incidentId, userId) {
+SchoolKeeper\Pages\Incidents\Details.cshtml:211:const result = await auth.apiRequest(`/Incident/${incidentId}/remove-user/${userId}`, {
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:66:if (user.Role != Models.Enums.UserRole.Admin && incident.SchoolId != user.SchoolId)
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:76:.AnyAsync(ui => ui.IncidentId == id && ui.UserId == user.Id);
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:78:if (incident.ReportedBy != user.Id && !isParticipant)
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:87:DeviceId = incident.DeviceId,
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:88:ReportedBy = incident.ReportedBy,
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:94:SchoolId = incident.SchoolId
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:115:var schoolIdForFilter = user.Role == Models.Enums.UserRole.Admin
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:116:? incident.SchoolId
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:117:: user.SchoolId;
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:120:.Where(u => u.Id != incident.ReportedBy);
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:122:if (schoolIdForFilter.HasValue)
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:124:schoolUsersQuery = schoolUsersQuery.Where(u => u.SchoolId == schoolIdForFilter.Value);
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:129:var incidentUserIds = incident.UserIncidents.Select(ui => ui.UserId).ToList();
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:131:.Where(u => !incidentUserIds.Contains(u.Id))
+SchoolKeeper\Pages\Incidents\Details.cshtml.cs:165:if (user.Role != Models.Enums.UserRole.Admin && incident.SchoolId != user.SchoolId)
+SchoolKeeper\Pages\Incidents\Edit.cshtml:12:<label asp-for="Incident.DeviceId" class="form-label">Пристрій</label>
+SchoolKeeper\Pages\Incidents\Edit.cshtml:13:<select asp-for="Incident.DeviceId" asp-items="Model.Devices" class="form-select">
+SchoolKeeper\Pages\Incidents\Edit.cshtml:16:<span asp-validation-for="Incident.DeviceId" class="text-danger"></span>
+SchoolKeeper\Pages\Incidents\Edit.cshtml.cs:53:if (!incident.SchoolId.HasValue || incident.SchoolId.Value != user.SchoolId)
+SchoolKeeper\Pages\Incidents\Edit.cshtml.cs:62:DeviceId = incident.DeviceId,
+SchoolKeeper\Pages\Incidents\Edit.cshtml.cs:63:ReportedBy = incident.ReportedBy,
+SchoolKeeper\Pages\Incidents\Edit.cshtml.cs:69:SchoolId = incident.SchoolId
+SchoolKeeper\Pages\Incidents\Edit.cshtml.cs:83:devicesQuery = devicesQuery.Where(d => d.SchoolId == user.SchoolId);
+SchoolKeeper\Pages\Incidents\Edit.cshtml.cs:86:Devices = new SelectList(await devicesQuery.ToListAsync(), "Id", "DeviceName", incident.DeviceId);
+SchoolKeeper\Pages\Incidents\Edit.cshtml.cs:108:if (!incident.SchoolId.HasValue || incident.SchoolId.Value != user.SchoolId)
+SchoolKeeper\Pages\Incidents\Edit.cshtml.cs:120:DeviceId = incident.DeviceId,
+SchoolKeeper\Pages\Incidents\Edit.cshtml.cs:121:ReportedBy = incident.ReportedBy,
+SchoolKeeper\Pages\Incidents\Edit.cshtml.cs:127:SchoolId = incident.SchoolId
+SchoolKeeper\Pages\Incidents\Edit.cshtml.cs:133:devicesQuery = devicesQuery.Where(d => d.SchoolId == user.SchoolId);
+SchoolKeeper\Pages\Incidents\Edit.cshtml.cs:135:Devices = new SelectList(await devicesQuery.ToListAsync(), "Id", "DeviceName", incident.DeviceId);
+SchoolKeeper\Pages\Incidents\Edit.cshtml.cs:146:if (Incident.DeviceId.HasValue) incident.DeviceId = Incident.DeviceId.Value;
+SchoolKeeper\Pages\Incidents\Index.cshtml:40:<td>@incident.DeviceId</td>
+SchoolKeeper\Pages\Incidents\Index.cshtml.cs:58:query = _dataFilterService.FilterBySchool(query, user.SchoolId);
+SchoolKeeper\Pages\Incidents\Index.cshtml.cs:71:DeviceId = i.DeviceId,
+SchoolKeeper\Pages\Incidents\Index.cshtml.cs:72:ReportedBy = i.ReportedBy,
+SchoolKeeper\Pages\Incidents\Index.cshtml.cs:78:SchoolId = i.SchoolId
+SchoolKeeper\Pages\Incidents\Index.cshtml.cs:107:if (!incident.SchoolId.HasValue || incident.SchoolId.Value != user.SchoolId)
+SchoolKeeper\Pages\Parent\Index.cshtml.cs:24:public int SchoolId { get; set; }
+SchoolKeeper\Pages\Parent\Index.cshtml.cs:34:SchoolId = user.SchoolId;
+SchoolKeeper\Pages\Parent\Index.cshtml.cs:38:.CountAsync(i => i.SchoolId == SchoolId);
+SchoolKeeper\Pages\Parent\Index.cshtml.cs:40:.CountAsync(i => i.SchoolId == SchoolId && i.StatusValue == IncidentStatus.Active.ToString());
+SchoolKeeper\Pages\Parent\Index.cshtml.cs:42:.CountAsync(r => r.SchoolId == SchoolId);
+SchoolKeeper\Pages\Reports\Create.cshtml:11:<input type="hidden" asp-for="Report.SchoolId" />
+SchoolKeeper\Pages\Reports\Create.cshtml:35:<input type="hidden" asp-for="Report.GeneratedBy" />
+SchoolKeeper\Pages\Reports\Create.cshtml.cs:39:Report.SchoolId = user.SchoolId;
+SchoolKeeper\Pages\Reports\Create.cshtml.cs:40:Schools = new SelectList(await _context.Schools.Where(s => s.Id == user.SchoolId).ToListAsync(), "Id", "Name");
+SchoolKeeper\Pages\Reports\Create.cshtml.cs:42:Report.GeneratedBy = user.Id;
+SchoolKeeper\Pages\Reports\Create.cshtml.cs:61:Schools = new SelectList(await _context.Schools.Where(s => s.Id == user.SchoolId).ToListAsync(), "Id", "Name");
+SchoolKeeper\Pages\Reports\Create.cshtml.cs:66:if (Report.SchoolId != user.SchoolId)
+SchoolKeeper\Pages\Reports\Create.cshtml.cs:69:Schools = new SelectList(await _context.Schools.Where(s => s.Id == user.SchoolId).ToListAsync(), "Id", "Name");
+SchoolKeeper\Pages\Reports\Create.cshtml.cs:73:Report.GeneratedBy = user.Id;
+SchoolKeeper\Pages\Reports\Create.cshtml.cs:84:Report.SchoolId,
+SchoolKeeper\Pages\Reports\Create.cshtml.cs:92:Report.SchoolId,
+SchoolKeeper\Pages\Reports\Create.cshtml.cs:104:SchoolId = Report.SchoolId,
+SchoolKeeper\Pages\Reports\Create.cshtml.cs:105:GeneratedBy = Report.GeneratedBy,
+SchoolKeeper\Pages\Reports\Details.cshtml.cs:52:if (user.Role != Models.Enums.UserRole.Admin && report.SchoolId != user.SchoolId)
+SchoolKeeper\Pages\Reports\Details.cshtml.cs:60:SchoolId = report.SchoolId,
+SchoolKeeper\Pages\Reports\Details.cshtml.cs:61:GeneratedBy = report.GeneratedBy,
+SchoolKeeper\Pages\Reports\Edit.cshtml:14:<label asp-for="Report.SchoolId" class="form-label">Школа</label>
+SchoolKeeper\Pages\Reports\Edit.cshtml:15:<select asp-for="Report.SchoolId" asp-items="Model.Schools" class="form-select">
+SchoolKeeper\Pages\Reports\Edit.cshtml:18:<span asp-validation-for="Report.SchoolId" class="text-danger"></span>
+SchoolKeeper\Pages\Reports\Edit.cshtml.cs:49:if (user.Role != UserRole.Admin && report.SchoolId != user.SchoolId)
+SchoolKeeper\Pages\Reports\Edit.cshtml.cs:57:SchoolId = report.SchoolId,
+SchoolKeeper\Pages\Reports\Edit.cshtml.cs:58:GeneratedBy = report.GeneratedBy,
+SchoolKeeper\Pages\Reports\Edit.cshtml.cs:74:Schools = new SelectList(await _context.Schools.ToListAsync(), "Id", "Name", report.SchoolId);
+SchoolKeeper\Pages\Reports\Edit.cshtml.cs:78:Schools = new SelectList(await _context.Schools.Where(s => s.Id == user.SchoolId).ToListAsync(), "Id", "Name", report.SchoolId);
+SchoolKeeper\Pages\Reports\Edit.cshtml.cs:97:if (user.Role != Models.Enums.UserRole.Admin && report.SchoolId != user.SchoolId)
+SchoolKeeper\Pages\Reports\Edit.cshtml.cs:108:SchoolId = report.SchoolId,
+SchoolKeeper\Pages\Reports\Edit.cshtml.cs:109:GeneratedBy = report.GeneratedBy,
+SchoolKeeper\Pages\Reports\Edit.cshtml.cs:118:Schools = new SelectList(await _context.Schools.ToListAsync(), "Id", "Name", report.SchoolId);
+SchoolKeeper\Pages\Reports\Edit.cshtml.cs:122:Schools = new SelectList(await _context.Schools.Where(s => s.Id == user.SchoolId).ToListAsync(), "Id", "Name", report.SchoolId);
+SchoolKeeper\Pages\Reports\Edit.cshtml.cs:131:if (Report.SchoolId.HasValue && IsAdmin) report.SchoolId = Report.SchoolId.Value;
+SchoolKeeper\Pages\Reports\Index.cshtml.cs:62:query = query.Where(r => r.SchoolId == user.SchoolId);
+SchoolKeeper\Pages\Security\Index.cshtml.cs:27:public int SchoolId { get; set; }
+SchoolKeeper\Pages\Security\Index.cshtml.cs:37:SchoolId = user.SchoolId;
+SchoolKeeper\Pages\Security\Index.cshtml.cs:40:.CountAsync(d => d.SchoolId == SchoolId);
+SchoolKeeper\Pages\Security\Index.cshtml.cs:42:.CountAsync(d => d.SchoolId == SchoolId && d.StatusValue == DeviceStatus.Active.ToString());
+SchoolKeeper\Pages\Security\Index.cshtml.cs:44:.CountAsync(d => d.SchoolId == SchoolId && d.StatusValue != DeviceStatus.Active.ToString());
+SchoolKeeper\Pages\Security\Index.cshtml.cs:46:.CountAsync(i => i.SchoolId == SchoolId && i.StatusValue == IncidentStatus.Active.ToString());
+SchoolKeeper\Pages\Security\Index.cshtml.cs:48:.CountAsync(i => i.SchoolId == SchoolId && i.StatusValue == IncidentStatus.Resolved.ToString());
+SchoolKeeper\Pages\Security\Index.cshtml.cs:50:.CountAsync(r => r.SchoolId == SchoolId);
+SchoolKeeper\Pages\Shared\_Layout.cshtml:141:const originalAdminId = localStorage.getItem('originalAdminId');
+SchoolKeeper\Pages\Shared\_Layout.cshtml:148:// 2. Есть originalAdminId (значит это админ в режиме impersonation)
+SchoolKeeper\Pages\Shared\_Layout.cshtml:150:// поэтому проверяем только isImpersonating и originalAdminId
+SchoolKeeper\Pages\Shared\_Layout.cshtml:151:const shouldShowImpersonation = isImpersonating && originalAdminId;
+SchoolKeeper\Pages\Shared\_Layout.cshtml:206:localStorage.removeItem('userId');
+SchoolKeeper\Pages\Shared\_Layout.cshtml:234:// Получаем originalAdminId из localStorage
+SchoolKeeper\Pages\Shared\_Layout.cshtml:235:const originalAdminId = localStorage.getItem('originalAdminId');
+SchoolKeeper\Pages\Shared\_Layout.cshtml:238:body: JSON.stringify({ originalAdminId: originalAdminId || '' })
+SchoolKeeper\Pages\Shared\_Layout.cshtml:246:localStorage.setItem('userId', data.data.userId);
+SchoolKeeper\Pages\Shared\_Layout.cshtml:248:localStorage.removeItem('originalAdminId');
+SchoolKeeper\Pages\Shared\_Layout.cshtml:253:document.cookie = 'originalAdminId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+SchoolKeeper\Pages\Student\Index.cshtml.cs:28:public int SchoolId { get; set; }
+SchoolKeeper\Pages\Student\Index.cshtml.cs:38:SchoolId = user.SchoolId;
+SchoolKeeper\Pages\Student\Index.cshtml.cs:53:SchoolId = t.SchoolId
+SchoolKeeper\Pages\Student\Index.cshtml.cs:57:var incidentIds = await _context.UserIncidents
+SchoolKeeper\Pages\Student\Index.cshtml.cs:58:.Where(ui => ui.UserId == user.Id)
+SchoolKeeper\Pages\Student\Index.cshtml.cs:59:.Select(ui => ui.IncidentId)
+SchoolKeeper\Pages\Student\Index.cshtml.cs:65:.Where(i => incidentIds.Contains(i.Id));
+SchoolKeeper\Pages\Student\Index.cshtml.cs:68:incidentsQuery = incidentsQuery.Where(i => i.SchoolId == user.SchoolId);
+SchoolKeeper\Pages\Student\Index.cshtml.cs:77:DeviceId = i.DeviceId,
+SchoolKeeper\Pages\Student\Index.cshtml.cs:78:ReportedBy = i.ReportedBy,
+SchoolKeeper\Pages\Student\Index.cshtml.cs:84:SchoolId = i.SchoolId
+SchoolKeeper\Pages\Teacher\Index.cshtml.cs:25:public int SchoolId { get; set; }
+SchoolKeeper\Pages\Teacher\Index.cshtml.cs:52:SchoolId = user.SchoolId;
+SchoolKeeper\Pages\Teacher\Index.cshtml.cs:101:.Where(i => i.SchoolId == SchoolId)
+SchoolKeeper\Pages\Teacher\Index.cshtml.cs:111:DeviceId = i.DeviceId,
+SchoolKeeper\Pages\Teacher\Index.cshtml.cs:112:ReportedBy = i.ReportedBy,
+SchoolKeeper\Pages\Teacher\Index.cshtml.cs:118:SchoolId = i.SchoolId
+SchoolKeeper\Pages\Login.cshtml:75:localStorage.setItem('userId', data.data.userId);
+SchoolKeeper\Pages\Login.cshtml:79:localStorage.removeItem('originalAdminId');
+SchoolKeeper\Pages\Login.cshtml:84:document.cookie = 'originalAdminId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+SchoolKeeper\Pages\Register.cshtml:47:<label for="schoolId" class="form-label">Школа</label>
+SchoolKeeper\Pages\Register.cshtml:48:<select class="form-select" id="schoolId" name="schoolId" required>
+SchoolKeeper\Pages\Register.cshtml:92:const schoolId = parseInt(document.getElementById('schoolId').value);
+SchoolKeeper\Pages\Register.cshtml:132:schoolId,
+SchoolKeeper\Pages\Register.cshtml.cs:30:public int SchoolId { get; set; }
+SchoolKeeper\Services\DataFilterService.cs:15:public IQueryable<T> FilterBySchool<T>(IQueryable<T> query, int? schoolId) where T : class
+SchoolKeeper\Services\DataFilterService.cs:17:if (schoolId == null) return query;
+SchoolKeeper\Services\DataFilterService.cs:19:// Filter by SchoolId property if it exists
+SchoolKeeper\Services\DataFilterService.cs:20:var schoolIdProperty = typeof(T).GetProperty("SchoolId");
+SchoolKeeper\Services\DataFilterService.cs:21:if (schoolIdProperty != null)
+SchoolKeeper\Services\DataFilterService.cs:24:var property = System.Linq.Expressions.Expression.Property(parameter, schoolIdProperty);
+SchoolKeeper\Services\DataFilterService.cs:27:if (Nullable.GetUnderlyingType(schoolIdProperty.PropertyType) != null || schoolIdProperty.PropertyType == typeof(int?))
+SchoolKeeper\Services\DataFilterService.cs:30:var constant = System.Linq.Expressions.Expression.Constant(schoolId.Value, typeof(int?));
+SchoolKeeper\Services\DataFilterService.cs:38:var constant = System.Linq.Expressions.Expression.Constant(schoolId.Value);
+SchoolKeeper\Services\DataFilterService.cs:48:public IQueryable<Incident> FilterIncidentsByRole(IQueryable<Incident> query, string? role, int? userId)
+SchoolKeeper\Services\DataFilterService.cs:50:if (string.IsNullOrEmpty(role) || userId == null)
+SchoolKeeper\Services\DataFilterService.cs:57:"Teacher" => query.Where(i => i.ReportedBy == userId), // Teacher sees their own
+SchoolKeeper\Services\DataFilterService.cs:58:"Parent" => GetParentIncidents(query, userId.Value), // Parent sees incidents related to their children
+SchoolKeeper\Services\DataFilterService.cs:59:"Student" => GetStudentIncidents(query, userId.Value), // Student sees incidents where they participate via UserIncident
+SchoolKeeper\Services\DataFilterService.cs:60:_ => query.Where(i => i.ReportedBy == userId) // Default: own incidents only
+SchoolKeeper\Services\DataFilterService.cs:64:public IQueryable<User> FilterUsersByRole(IQueryable<User> query, string? role, int? userId)
+SchoolKeeper\Services\DataFilterService.cs:66:if (string.IsNullOrEmpty(role) || userId == null)
+SchoolKeeper\Services\DataFilterService.cs:73:_ => query.Where(u => u.Id == userId) // Others see only themselves
+SchoolKeeper\Services\DataFilterService.cs:85:var incidentIdsFromParticipation = _context.UserIncidents
+SchoolKeeper\Services\DataFilterService.cs:86:.Where(ui => childStudentIds.Contains(ui.UserId))
+SchoolKeeper\Services\DataFilterService.cs:87:.Select(ui => ui.IncidentId)
+SchoolKeeper\Services\DataFilterService.cs:91:var incidentIdsFromReports = _context.Incidents
+SchoolKeeper\Services\DataFilterService.cs:92:.Where(i => childStudentIds.Contains(i.ReportedBy))
+SchoolKeeper\Services\DataFilterService.cs:99:incidentIdsFromParticipation.Contains(i.Id) ||
+SchoolKeeper\Services\DataFilterService.cs:100:incidentIdsFromReports.Contains(i.Id));
+SchoolKeeper\Services\DataFilterService.cs:106:var incidentIds = _context.UserIncidents
+SchoolKeeper\Services\DataFilterService.cs:107:.Where(ui => ui.UserId == studentId)
+SchoolKeeper\Services\DataFilterService.cs:108:.Select(ui => ui.IncidentId);
+SchoolKeeper\Services\DataFilterService.cs:110:return query.Where(i => incidentIds.Contains(i.Id));
+SchoolKeeper\Services\DbSeeder.cs:67:SchoolId = school.Id
+SchoolKeeper\Services\DbSeeder.cs:80:SchoolId = school.Id
+SchoolKeeper\Services\DbSeeder.cs:100:SchoolId = school.Id
+SchoolKeeper\Services\DbSeeder.cs:120:SchoolId = school.Id
+SchoolKeeper\Services\DbSeeder.cs:142:SchoolId = school.Id
+SchoolKeeper\Services\DbSeeder.cs:167:SchoolId = school.Id
+SchoolKeeper\Services\DbSeeder.cs:179:var schoolParents = users.Where(u => u.SchoolId == school.Id && u.Role == UserRole.Parent).ToList();
+SchoolKeeper\Services\DbSeeder.cs:180:var schoolStudents = users.Where(u => u.SchoolId == school.Id && u.Role == UserRole.Student).ToList();
+SchoolKeeper\Services\DbSeeder.cs:212:var schoolTeachers = users.Where(u => u.SchoolId == school.Id && u.Role == UserRole.Teacher).ToList();
+SchoolKeeper\Services\DbSeeder.cs:213:var schoolStudents = users.Where(u => u.SchoolId == school.Id && u.Role == UserRole.Student).ToList();
+SchoolKeeper\Services\DbSeeder.cs:244:var schoolSecurity = users.Where(u => u.SchoolId == school.Id && u.Role == UserRole.Security).ToList();
+SchoolKeeper\Services\DbSeeder.cs:245:var schoolDevices = devices.Where(d => d.SchoolId == school.Id).ToList();
+SchoolKeeper\Services\DbSeeder.cs:250:var reportedBy = schoolSecurity[random.Next(schoolSecurity.Count)];
+SchoolKeeper\Services\DbSeeder.cs:256:DeviceId = device.Id,
+SchoolKeeper\Services\DbSeeder.cs:257:ReportedBy = reportedBy.Id,
+SchoolKeeper\Services\DbSeeder.cs:263:SchoolId = school.Id
+SchoolKeeper\Services\DbSeeder.cs:275:var schoolStudents = users.Where(u => u.SchoolId == school.Id && u.Role == UserRole.Student).ToList();
+SchoolKeeper\Services\DbSeeder.cs:276:var schoolIncidents = incidents.Where(i => i.SchoolId == school.Id).ToList();
+SchoolKeeper\Services\DbSeeder.cs:289:UserId = student.Id,
+SchoolKeeper\Services\DbSeeder.cs:290:IncidentId = incident.Id
+SchoolKeeper\Services\DbSeeder.cs:303:var schoolAdmin = users.FirstOrDefault(u => u.SchoolId == school.Id && u.Role == UserRole.Admin);
+SchoolKeeper\Services\DbSeeder.cs:314:SchoolId = school.Id,
+SchoolKeeper\Services\DbSeeder.cs:315:GeneratedBy = schoolAdmin.Id,
+SchoolKeeper\Services\DbSeeder.cs:331:var schoolIncidents = incidents.Where(i => i.SchoolId == report.SchoolId).ToList();
+SchoolKeeper\Services\DbSeeder.cs:343:IncidentId = incident.Id
+SchoolKeeper\Services\IDataFilterService.cs:7:IQueryable<T> FilterBySchool<T>(IQueryable<T> query, int? schoolId) where T : class;
+SchoolKeeper\Services\IDataFilterService.cs:8:IQueryable<Incident> FilterIncidentsByRole(IQueryable<Incident> query, string? role, int? userId);
+SchoolKeeper\Services\IDataFilterService.cs:9:IQueryable<User> FilterUsersByRole(IQueryable<User> query, string? role, int? userId);
+SchoolKeeper\Services\IUserService.cs:8:Task<User?> GetUserByIdAsync(int userId);
+SchoolKeeper\Services\IUserService.cs:9:int? GetCurrentUserId(HttpContext httpContext);
+SchoolKeeper\Services\IUserService.cs:11:int? GetCurrentUserSchoolId(HttpContext httpContext);
+SchoolKeeper\Services\IUserService.cs:12:Task<bool> HasAccessToSchoolAsync(HttpContext httpContext, int schoolId);
+SchoolKeeper\Services\IUserService.cs:13:Task<bool> HasAccessToResourceAsync(HttpContext httpContext, int resourceSchoolId);
+SchoolKeeper\Services\ReportGenerationService.cs:10:Task<string> GenerateTeacherReportAsync(int schoolId, DateOnly periodStart, DateOnly periodEnd, int teacherId);
+SchoolKeeper\Services\ReportGenerationService.cs:11:Task<string> GenerateSecurityReportAsync(int schoolId, DateOnly periodStart, DateOnly periodEnd);
+SchoolKeeper\Services\ReportGenerationService.cs:23:public async Task<string> GenerateTeacherReportAsync(int schoolId, DateOnly periodStart, DateOnly periodEnd, int teacherId)
+SchoolKeeper\Services\ReportGenerationService.cs:30:.Where(i => i.SchoolId == schoolId &&
+SchoolKeeper\Services\ReportGenerationService.cs:44:var studentIncidentIds = await _context.UserIncidents
+SchoolKeeper\Services\ReportGenerationService.cs:45:.Where(ui => studentIds.Contains(ui.UserId))
+SchoolKeeper\Services\ReportGenerationService.cs:46:.Select(ui => ui.IncidentId)
+SchoolKeeper\Services\ReportGenerationService.cs:51:.Where(i => studentIncidentIds.Contains(i.Id) || studentIds.Contains(i.ReportedBy))
+SchoolKeeper\Services\ReportGenerationService.cs:105:summary.AppendLine($"  Студентів, пов'язаних з інцидентами: {studentRelatedIncidents.SelectMany(i => i.UserIncidents.Where(ui => studentIds.Contains(ui.UserId)).Select(ui => ui.UserId)).Distinct().Count()}");
+SchoolKeeper\Services\ReportGenerationService.cs:141:public async Task<string> GenerateSecurityReportAsync(int schoolId, DateOnly periodStart, DateOnly periodEnd)
+SchoolKeeper\Services\ReportGenerationService.cs:148:.Where(d => d.SchoolId == schoolId)
+SchoolKeeper\Services\ReportGenerationService.cs:153:.Where(i => i.SchoolId == schoolId &&
+SchoolKeeper\Services\UserService.cs:18:var userId = GetCurrentUserId(httpContext);
+SchoolKeeper\Services\UserService.cs:19:if (userId == null) return null;
+SchoolKeeper\Services\UserService.cs:21:return await GetUserByIdAsync(userId.Value);
+SchoolKeeper\Services\UserService.cs:24:public async Task<User?> GetUserByIdAsync(int userId)
+SchoolKeeper\Services\UserService.cs:28:.FirstOrDefaultAsync(u => u.Id == userId);
+SchoolKeeper\Services\UserService.cs:31:public int? GetCurrentUserId(HttpContext httpContext)
+SchoolKeeper\Services\UserService.cs:33:var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+SchoolKeeper\Services\UserService.cs:34:if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+SchoolKeeper\Services\UserService.cs:37:return userId;
+SchoolKeeper\Services\UserService.cs:45:public int? GetCurrentUserSchoolId(HttpContext httpContext)
+SchoolKeeper\Services\UserService.cs:48:return user?.SchoolId;
+SchoolKeeper\Services\UserService.cs:51:public async Task<bool> HasAccessToSchoolAsync(HttpContext httpContext, int schoolId)
+SchoolKeeper\Services\UserService.cs:59:var userSchoolId = GetCurrentUserSchoolId(httpContext);
+SchoolKeeper\Services\UserService.cs:60:return userSchoolId == schoolId;
+SchoolKeeper\Services\UserService.cs:63:public async Task<bool> HasAccessToResourceAsync(HttpContext httpContext, int resourceSchoolId)
+SchoolKeeper\Services\UserService.cs:65:return await HasAccessToSchoolAsync(httpContext, resourceSchoolId);
+SchoolKeeper\wwwroot\js\admin.js:134:<td>${item.schoolId || ''}</td>
+SchoolKeeper\wwwroot\js\admin.js:150:<td>${item.schoolId || ''}</td>
+SchoolKeeper\wwwroot\js\admin.js:162:<td>${item.deviceId || ''}</td>
+SchoolKeeper\wwwroot\js\admin.js:163:<td>${item.reportedBy || ''}</td>
+SchoolKeeper\wwwroot\js\admin.js:169:<td>${item.schoolId || ''}</td>
+SchoolKeeper\wwwroot\js\admin.js:180:<td>${item.schoolId || ''}</td>
+SchoolKeeper\wwwroot\js\admin.js:181:<td>${item.generatedBy || ''}</td>
+SchoolKeeper\wwwroot\js\admin.js:364:const schoolSelects = document.querySelectorAll(`#${entityType}Form select[name="schoolId"]`);
+SchoolKeeper\wwwroot\js\admin.js:389:const selectName = entityType === 'Incident' ? 'reportedBy' : 'generatedBy';
+SchoolKeeper\wwwroot\js\admin.js:411:const select = document.querySelector('#IncidentForm select[name="deviceId"]');
+SchoolKeeper\wwwroot\js\admin.js:504:if (key.includes('Id') || key === 'reportedBy' || key === 'generatedBy' || key === 'deviceId') {
+SchoolKeeper\wwwroot\js\auth.js:27:if (userData.userId) {
+SchoolKeeper\wwwroot\js\auth.js:28:localStorage.setItem('userId', userData.userId);
+SchoolKeeper\wwwroot\js\auth.js:32:if (!userData.originalAdminId) {
+SchoolKeeper\wwwroot\js\auth.js:34:localStorage.removeItem('originalAdminId');
+SchoolKeeper\wwwroot\js\auth.js:36:// Если есть originalAdminId, значит это impersonation
+SchoolKeeper\wwwroot\js\auth.js:38:localStorage.setItem('originalAdminId', userData.originalAdminId);
+SchoolKeeper\wwwroot\js\auth.js:52:localStorage.removeItem('userId');
+SchoolKeeper\wwwroot\js\auth.js:54:localStorage.removeItem('originalAdminId');
+SchoolKeeper\wwwroot\js\auth.js:59:document.cookie = 'originalAdminId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+SchoolKeeper\Program.cs:128:context.Response.Cookies.Delete("originalAdminId");
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:9:@SerializedName("userId") val userId: Int,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:10:@SerializedName("originalAdminId") val originalAdminId: String? = null
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:22:@SerializedName("schoolId") val schoolId: Int,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:27:@SerializedName("userId") val userId: Int
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:31:@SerializedName("originalAdminId") val originalAdminId: String?
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:49:@SerializedName("schoolId") val schoolId: Int? = null
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:58:@SerializedName("schoolId") val schoolId: Int? = null
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:63:@SerializedName("deviceId") val deviceId: Int? = null,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:64:@SerializedName("reportedBy") val reportedBy: Int,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:70:@SerializedName("schoolId") val schoolId: Int? = null,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:75:@SerializedName("userId") val userId: Int,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:82:@SerializedName("userId") val userId: Int
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:87:@SerializedName("schoolId") val schoolId: Int,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:88:@SerializedName("generatedBy") val generatedBy: Int,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:101:@SerializedName("schoolId") val schoolId: Int
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:110:@SerializedName("schoolId") val schoolId: Int
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:120:@SerializedName("schoolId") val schoolId: Int? = null
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:134:@SerializedName("schoolId") val schoolId: Int,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\model\Models.kt:145:@SerializedName("userId") val userId: Int,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\remote\SchoolKeeperApi.kt:262:suspend fun getSchoolStatistics(token: String, schoolId: Int): SchoolStatisticsDto {
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\remote\SchoolKeeperApi.kt:263:val json = raw("GET", "api/Statistics/school/$schoolId", token)
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\remote\SchoolKeeperApi.kt:267:suspend fun getUserStatistics(token: String, userId: Int): UserStatisticsDto {
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\remote\SchoolKeeperApi.kt:268:val json = raw("GET", "api/Statistics/user/$userId", token)
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\session\SessionStore.kt:29:userId = prefs[USER_ID]?.toIntOrNull() ?: 0,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\session\SessionStore.kt:30:originalAdminId = prefs[ORIGINAL_ADMIN_ID],
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\session\SessionStore.kt:40:prefs[USER_ID] = session.userId.toString()
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\session\SessionStore.kt:41:if (session.originalAdminId != null) prefs[ORIGINAL_ADMIN_ID] = session.originalAdminId
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\session\SessionStore.kt:58:val userId: Int,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\session\SessionStore.kt:59:val originalAdminId: String? = null,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:292:var schoolId by remember { mutableIntStateOf(schools.firstOrNull()?.id ?: 0) }
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:309:schoolId.toString(),
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:310:{ it.filter { ch -> ch.isDigit() }.toIntOrNull()?.let { schoolId = it } },
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:328:schoolId = schoolId
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:349:var schoolId by remember(u.id) { mutableIntStateOf(u.schoolId) }
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:366:schoolId.toString(),
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:367:{ it.filter { ch -> ch.isDigit() }.toIntOrNull()?.let { schoolId = it } },
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:383:schoolId = schoolId,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:413:Text("Роль: ${u.role}, школа: ${u.schoolId}", style = MaterialTheme.typography.bodySmall)
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:480:var schoolId by remember(d.id) { mutableStateOf(d.schoolId?.toString().orEmpty()) }
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:491:OutlinedTextField(schoolId, { schoolId = it.filter { ch -> ch.isDigit() } }, label = { Text("ID школи") }, modifier = Modifier.fillMaxWidth())
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:498:val sid = schoolId.toIntOrNull()
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:506:schoolId = sid
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:538:Text("Тип ${d.deviceType}, статус ${d.status}, школа ${d.schoolId}", style = MaterialTheme.typography.bodySmall)
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:602:var deviceId by remember(inc.id) { mutableStateOf(inc.deviceId?.toString().orEmpty()) }
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:603:var reportedBy by remember(inc.id) { mutableIntStateOf(inc.reportedBy) }
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:608:var schoolId by remember(inc.id) { mutableStateOf(inc.schoolId?.toString().orEmpty()) }
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:615:OutlinedTextField(deviceId, { deviceId = it.filter { ch -> ch.isDigit() } }, label = { Text("ID пристрою") }, modifier = Modifier.fillMaxWidth())
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:617:reportedBy.toString(),
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:618:{ it.filter { ch -> ch.isDigit() }.toIntOrNull()?.let { reportedBy = it } },
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:626:OutlinedTextField(schoolId, { schoolId = it.filter { ch -> ch.isDigit() } }, label = { Text("ID школи") }, modifier = Modifier.fillMaxWidth())
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:634:val dev = deviceId.toIntOrNull() ?: 0
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:635:val sid = schoolId.toIntOrNull()
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:638:deviceId = if (dev > 0) dev else null,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:639:reportedBy = reportedBy,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:645:schoolId = sid,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:759:var schoolId by remember(r.id) { mutableIntStateOf(r.schoolId) }
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:760:var generatedBy by remember(r.id) { mutableIntStateOf(r.generatedBy) }
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:771:schoolId.toString(),
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:772:{ it.filter { ch -> ch.isDigit() }.toIntOrNull()?.let { schoolId = it } },
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:777:generatedBy.toString(),
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:778:{ it.filter { ch -> ch.isDigit() }.toIntOrNull()?.let { generatedBy = it } },
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:794:schoolId = schoolId,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:795:generatedBy = generatedBy,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:104:Text("SchoolId: ${it.schoolId}", color = MaterialTheme.colorScheme.onSurface)
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:347:var userId by remember { mutableStateOf("") }
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:358:userId,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:359:{ userId = it.filter { ch -> ch.isDigit() } },
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:370:val auth = app.api.impersonate(s.token, ImpersonateRequest(userId.toInt()))
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:376:userId = auth.userId,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:377:originalAdminId = auth.originalAdminId,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:394:val auth = app.api.stopImpersonation(s.token, StopImpersonationRequest(s.originalAdminId))
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:400:userId = auth.userId,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:402:originalAdminId = null
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:424:val me = app.api.getUser(s.token, s.userId)
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:425:stats = app.api.getSchoolStatistics(s.token, me.schoolId)
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:511:stats = app.api.getUserStatistics(s.token, s.userId)
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\LoginScreen.kt:95:userId = auth.userId
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\RegisterScreen.kt:44:var schoolId by remember { mutableStateOf("1") }
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\RegisterScreen.kt:75:AppOutlinedTextField(schoolId, { schoolId = it.filter { ch -> ch.isDigit() } }, label = { Text("ID школи") }, modifier = Modifier.fillMaxWidth())
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\RegisterScreen.kt:98:schoolId = schoolId.toIntOrNull() ?: 1,
+
+# Matches in section: 689
+
+=== Elvis and fallbacks (?: N) ===
+Pattern: \?\s*:\s*\d+
+
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\remote\SchoolKeeperApi.kt:78:val status = obj.get("statusCode")?.asInt ?: 200
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\remote\SchoolKeeperApi.kt:84:val status = obj.get("statusCode")?.asInt ?: 200
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\remote\SchoolKeeperApi.kt:100:val status = obj.get("statusCode")?.asInt ?: 200
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\data\session\SessionStore.kt:29:userId = prefs[USER_ID]?.toIntOrNull() ?: 0,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:292:var schoolId by remember { mutableIntStateOf(schools.firstOrNull()?.id ?: 0) }
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:634:val dev = deviceId.toIntOrNull() ?: 0
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:665:val uid = users.firstOrNull()?.id ?: 1
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:818:val s = schools.firstOrNull()?.id ?: 1
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:819:val u = users.firstOrNull()?.id ?: 1
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\RegisterScreen.kt:98:schoolId = schoolId.toIntOrNull() ?: 1,
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\RegisterScreen.kt:99:role = roleStr.toIntOrNull()?.coerceIn(0, 4) ?: 4
+
+# Matches in section: 11
+
+=== Sentinel new-record (id == 0) ===
+Pattern: (id\s*==\s*0|Id\s*==\s*0|\.id\s*==\s*0)
+
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:179:title = { Text(if (s.id == 0) "Нова школа" else "Редагування школи") },
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:193:if (s.id == 0) app.api.createSchool(token, dto) else app.api.updateSchool(token, s.id, dto)
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:483:title = { Text(if (d.id == 0) "Новий пристрій" else "Редагування пристрою") },
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:508:if (d.id == 0) app.api.createDevice(token, dto) else app.api.updateDevice(token, d.id, dto)
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:612:title = { Text(if (inc.id == 0) "Новий інцидент" else "Редагування інциденту") },
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:648:if (inc.id == 0) app.api.createIncident(token, dto) else app.api.updateIncident(token, inc.id, dto)
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:767:title = { Text(if (r.id == 0) "Новий звіт" else "Редагування звіту") },
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\AdminDataScreen.kt:801:if (r.id == 0) app.api.createReport(token, dto) else app.api.updateReport(token, r.id, dto)
+
+# Matches in section: 8
+
+=== Route placeholders (curly id) ===
+Pattern: \{id\}
+
+SchoolKeeper\wwwroot\js\admin.js:222:const result = await auth.apiRequest(`/${entityType}/${id}`);
+SchoolKeeper\wwwroot\js\admin.js:541:const req = await auth.apiRequest(`/${entityType}/${id}`, {
+SchoolKeeper\wwwroot\js\admin.js:571:const result = await auth.apiRequest(`/${entityType}/${id}`, {
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\navigation\Routes.kt:10:const val DeviceDetail = "device/{id}"
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\navigation\Routes.kt:13:const val IncidentDetail = "incident/{id}"
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\navigation\Routes.kt:16:const val ReportDetail = "report/{id}"
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:276:ctx.openFileOutput("report_${id}.$fmt", 0).use { out -> out.write(bytes) }
+SchoolKeeperAndroid\app\src\main\java\com\schoolkeeper\app\screens\FeatureScreens.kt:277:Toast.makeText(ctx, "Збережено report_${id}.$fmt", Toast.LENGTH_SHORT).show()
+
+# Matches in section: 8

@@ -1,0 +1,55 @@
+services:
+  schoolkeeper-app:
+    image: schoolkeeper:latest
+    scale: ${APP_INSTANCES:-3}
+    build:
+      context: .
+      dockerfile: SchoolKeeper/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+      WOKWI_DEFAULT_SCHOOL_ID: ${WOKWI_DEFAULT_SCHOOL_ID:-}
+      ConnectionStrings__DefaultConnection: Host=${DB_HOST:-host.docker.internal};Port=${DB_PORT:-5432};Database=${DB_NAME:-SchoolKeeperDB};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-Obema567123};Include Error Detail=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - schoolkeeper-private
+      - schoolkeeper-egress
+
+  load-balancer:
+    image: nginx:1.27-alpine
+    depends_on:
+      - schoolkeeper-app
+    ports:
+      - "${LB_PORT:-8080}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - schoolkeeper-private
+      - schoolkeeper-public
+
+  wokwi-simulator:
+    build:
+      context: .
+      dockerfile: WokwiSimulator/Dockerfile
+    depends_on:
+      - load-balancer
+    environment:
+      WOKWI_SERVER_URL: http://load-balancer/api/Incident/wokwi
+      WOKWI_DEVICES_API_URL: http://load-balancer/api/Incident/wokwi/devices
+      WOKWI_DEVICES_REFRESH_SECONDS: ${WOKWI_DEVICES_REFRESH_SECONDS:-30}
+      WOKWI_DEVICE_GUIDS: ${WOKWI_DEVICE_GUIDS:-}
+      WOKWI_MIN_DELAY_SECONDS: ${WOKWI_MIN_DELAY_SECONDS:-5}
+      WOKWI_MAX_DELAY_SECONDS: ${WOKWI_MAX_DELAY_SECONDS:-30}
+    restart: unless-stopped
+    networks:
+      - schoolkeeper-private
+
+networks:
+  schoolkeeper-public:
+    driver: bridge
+  schoolkeeper-private:
+    driver: bridge
+    internal: true
+  schoolkeeper-egress:
+    driver: bridge

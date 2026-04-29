@@ -2,14 +2,15 @@
 @model SchoolKeeper.Pages.Devices.IndexModel
 @{
     ViewData["Title"] = "Пристрої";
+    ViewData["I18nPage"] = "devices";
 }
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Пристрої</h1>
+        <h1 data-i18n="devices.title">Пристрої</h1>
         @if (Model.CanCreate)
         {
-            <a asp-page="Create" class="btn btn-primary">Додати пристрій</a>
+            <a asp-page="Create" class="btn btn-primary" data-i18n="devices.add">Додати пристрій</a>
         }
     </div>
 
@@ -17,11 +18,11 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Назва</th>
-                    <th>Тип</th>
-                    <th>Статус</th>
-                    <th>Розташування</th>
-                    <th>Дії</th>
+                    <th data-i18n="admin.th.name">Назва</th>
+                    <th data-i18n="admin.th.type">Тип</th>
+                    <th data-i18n="admin.th.status">Статус</th>
+                    <th data-i18n="admin.lbl.location">Розташування</th>
+                    <th data-i18n="admin.th.actions">Дії</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,15 +33,15 @@
                         <td>@device.DeviceType</td>
                         <td>
                             <span class="badge @(device.Status == SchoolKeeper.Models.Enums.DeviceStatus.Active ? "bg-success" : "bg-danger")">
-                                @device.Status
+                                <span data-i18n="enum.DeviceStatus.@device.Status">@device.Status</span>
                             </span>
                         </td>
                         <td>@device.Location</td>
                         <td>
-                            <a asp-page="Details" asp-route-id="@device.Id" class="btn btn-sm btn-info">Деталі</a>
+                            <a asp-page="Details" asp-route-id="@device.Id" class="btn btn-sm btn-info" data-i18n="common.details">Деталі</a>
                             @if (Model.CanEdit)
                             {
-                                <a asp-page="Edit" asp-route-id="@device.Id" class="btn btn-sm btn-warning">Редагувати</a>
+                                <a asp-page="Edit" asp-route-id="@device.Id" class="btn btn-sm btn-warning" data-i18n="common.edit">Редагувати</a>
                             }
                         </td>
                     </tr>
@@ -49,4 +50,3 @@
         </table>
     </div>
 </div>
-

@@ -2,14 +2,15 @@
 @model SchoolKeeper.Pages.Reports.IndexModel
 @{
     ViewData["Title"] = "Звіти";
+    ViewData["I18nPage"] = "reports";
 }
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Звіти</h1>
+        <h1 data-i18n="reports.title">Звіти</h1>
         @if (Model.CanCreate)
         {
-            <a asp-page="Create" class="btn btn-primary">Створити звіт</a>
+            <a asp-page="Create" class="btn btn-primary" data-i18n="reports.create">Створити звіт</a>
         }
     </div>
 
@@ -17,11 +18,11 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Період початку</th>
-                    <th>Період кінця</th>
-                    <th>Створено</th>
-                    <th>Автор</th>
-                    <th>Дії</th>
+                    <th data-i18n="reports.th.periodStart">Період початку</th>
+                    <th data-i18n="reports.th.periodEnd">Період кінця</th>
+                    <th data-i18n="reports.th.created">Створено</th>
+                    <th data-i18n="reports.th.author">Автор</th>
+                    <th data-i18n="reports.th.actions">Дії</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,7 +34,8 @@
                         <td>@report.GeneratedOn.ToString("dd.MM.yyyy HH:mm")</td>
                         <td>@report.GeneratorName</td>
                         <td>
-                            <a asp-page="Details" asp-route-id="@report.Id" class="btn btn-sm btn-info">Деталі</a>
+                            <a asp-page="Details" asp-route-id="@report.Id" class="btn btn-sm btn-info" data-i18n="common.details">Деталі</a>
+                            <button type="button" onclick="exportReport(@report.Id, 'txt')" class="btn btn-sm btn-success" data-i18n="reports.downloadTxt">Скачати TXT</button>
                         </td>
                     </tr>
                 }
@@ -42,4 +44,6 @@
     </div>
 </div>
 
-
+@section Scripts {
+    <script src="~/js/report-export.js" asp-append-version="true"></script>
+}

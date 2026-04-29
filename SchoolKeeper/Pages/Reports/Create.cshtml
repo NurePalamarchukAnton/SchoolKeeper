@@ -2,44 +2,43 @@
 @model SchoolKeeper.Pages.Reports.CreateModel
 @{
     ViewData["Title"] = "Створити звіт";
+    ViewData["I18nPage"] = "reportCreate";
 }
 
 <div class="container">
-    <h2>Створити звіт</h2>
+    <h2 data-i18n="reports.createPageTitle">Створити звіт</h2>
 
     <form method="post">
         <input type="hidden" asp-for="Report.SchoolId" />
         <div class="alert alert-info">
-            <p class="mb-0">Звіт буде автоматично сформовано на основі статистики за вказаний період.</p>
+            <p class="mb-0" data-i18n="reports.autoInfo">Звіт буде автоматично сформовано на основі статистики за вказаний період.</p>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Report.PeriodStart" class="form-label">Період початку</label>
+            <label asp-for="Report.PeriodStart" class="form-label" data-i18n="reports.lbl.periodStart">Період початку</label>
             <input asp-for="Report.PeriodStart" type="date" class="form-control" required />
             <span asp-validation-for="Report.PeriodStart" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Report.PeriodEnd" class="form-label">Період кінця</label>
+            <label asp-for="Report.PeriodEnd" class="form-label" data-i18n="reports.lbl.periodEnd">Період кінця</label>
             <input asp-for="Report.PeriodEnd" type="date" class="form-control" required />
             <span asp-validation-for="Report.PeriodEnd" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Report.Summary" class="form-label">Додаткова інформація (опціонально)</label>
-            <textarea asp-for="Report.Summary" class="form-control" rows="5" placeholder="Додайте додаткову інформацію до автоматично згенерованого звіту..."></textarea>
+            <label asp-for="Report.Summary" class="form-label" data-i18n="reports.lbl.summaryOptional">Додаткова інформація (опціонально)</label>
+            <textarea asp-for="Report.Summary" class="form-control" rows="5" data-i18n-placeholder="reports.placeholder.summary" placeholder="Додайте додаткову інформацію до автоматично згенерованого звіту..."></textarea>
             <span asp-validation-for="Report.Summary" class="text-danger"></span>
-            <small class="form-text text-muted">Основна статистика буде автоматично додана до звіту.</small>
+            <small class="form-text text-muted" data-i18n="reports.hint.stats">Основна статистика буде автоматично додана до звіту.</small>
         </div>
 
         <input type="hidden" asp-for="Report.GeneratedBy" />
         <input type="hidden" asp-for="Report.GeneratedOn" />
 
         <div class="mb-3">
-            <button type="submit" class="btn btn-primary">Створити</button>
-            <a asp-page="Index" class="btn btn-secondary">Скасувати</a>
+            <button type="submit" class="btn btn-primary" data-i18n="common.create">Створити</button>
+            <a asp-page="Index" class="btn btn-secondary" data-i18n="common.cancel">Скасувати</a>
         </div>
     </form>
 </div>
-
-

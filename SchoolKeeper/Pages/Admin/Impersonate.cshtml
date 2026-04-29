@@ -2,6 +2,7 @@
 @model SchoolKeeper.Pages.Admin.ImpersonateModel
 @{
     ViewData["Title"] = "Вхід від імені користувача";
+    ViewData["I18nPage"] = "impersonate";
 }
 
 <div class="container-fluid">
@@ -9,26 +10,27 @@
         <div class="col-md-8 col-lg-6">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
+                    <h4 class="mb-0 d-flex align-items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-person-badge me-2" viewBox="0 0 16 16">
                             <path d="M6.5 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                             <path d="M4.5 0A2.5 2.5 0 0 0 2 2.5v14.5A1.5 1.5 0 0 0 3.5 18h9a1.5 1.5 0 0 0 1.5-1.5v-14.5A2.5 2.5 0 0 0 11.5 0h-7zM3 2.5A1.5 1.5 0 0 1 4.5 1h7A1.5 1.5 0 0 1 13 2.5v14.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V2.5z"/>
                         </svg>
-                        Вхід від імені користувача
+                        <span data-i18n="impersonate.cardTitle">Вхід від імені користувача</span>
                     </h4>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info">
-                        <strong>Увага!</strong> Ви будете працювати від імені обраного користувача. Всі дії будуть виконуватися від його імені.
+                        <strong data-i18n="impersonate.attention">Увага!</strong>
+                        <span data-i18n="impersonate.alert"> Ви будете працювати від імені обраного користувача. Всі дії будуть виконуватися від його імені.</span>
                     </div>
 
                     <form id="impersonateForm">
                         <div class="mb-3">
-                            <label for="userId" class="form-label">Оберіть користувача *</label>
+                            <label for="userId" class="form-label" data-i18n="impersonate.lbl.user">Оберіть користувача *</label>
                             <select class="form-select" id="userId" name="userId" required>
-                                <option value="">Завантаження користувачів...</option>
+                                <option value="" data-i18n="impersonate.loadingUsers">Завантаження користувачів...</option>
                             </select>
-                            <small class="form-text text-muted">Виберіть користувача, від імені якого хочете увійти</small>
+                            <small class="form-text text-muted" data-i18n="impersonate.hint">Виберіть користувача, від імені якого хочете увійти</small>
                         </div>
 
                         <div class="d-grid gap-2">
@@ -37,19 +39,19 @@
                                     <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"/>
                                     <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
                                 </svg>
-                                Увійти від імені користувача
+                                <span id="impersonateBtnLabel" data-i18n="impersonate.submit">Увійти від імені користувача</span>
                             </button>
-                            <a href="/Admin" class="btn btn-secondary">
+                            <a href="/Admin" class="btn btn-secondary d-flex align-items-center justify-content-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-left me-2" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
                                 </svg>
-                                Назад до адмін-панелі
+                                <span data-i18n="impersonate.back">Назад до адмін-панелі</span>
                             </a>
                         </div>
                     </form>
 
                     <div id="errorAlert" class="alert alert-danger mt-3" style="display: none;">
-                        <strong>Помилка!</strong> <span id="errorMessage"></span>
+                        <strong data-i18n="impersonate.errorPrefix">Помилка!</strong> <span id="errorMessage"></span>
                     </div>
                 </div>
             </div>
@@ -58,19 +60,19 @@
             {
                 <div class="card shadow mt-4 border-warning">
                     <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0">Режим входу від імені користувача активний</h5>
+                        <h5 class="mb-0" data-i18n="impersonate.activeTitle">Режим входу від імені користувача активний</h5>
                     </div>
                     <div class="card-body">
                         <p class="mb-2">
-                            <strong>Ви працюєте від імені:</strong> @Model.ImpersonatedUserEmail<br>
-                            <strong>Роль:</strong> <span class="badge bg-info">@Model.ImpersonatedUserRole</span>
+                            <strong data-i18n="impersonate.workingAs">Ви працюєте від імені:</strong> @Model.ImpersonatedUserEmail<br>
+                            <strong data-i18n="impersonate.role">Роль:</strong> <span class="badge bg-info" data-i18n="role.@Model.ImpersonatedUserRole">@Model.ImpersonatedUserRole</span>
                         </p>
                         <button type="button" class="btn btn-warning" id="stopImpersonationBtn">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle me-1" viewBox="0 0 16 16">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
                             </svg>
-                            Вийти з режиму входу від імені
+                            <span id="stopImpersonationBtnLabel" data-i18n="impersonate.stop">Вийти з режиму входу від імені</span>
                         </button>
                     </div>
                 </div>
@@ -81,45 +83,58 @@
 
 @section Scripts {
     <script>
+        function skT(key, fb) {
+            var sk = window.SchoolKeeperI18n;
+            return sk ? sk.t(key) : fb;
+        }
+        function resetImpersonateButton() {
+            var btn = document.getElementById('impersonateBtn');
+            var label = document.getElementById('impersonateBtnLabel');
+            if (btn) btn.disabled = false;
+            if (label && window.SchoolKeeperI18n) SchoolKeeperI18n.apply();
+        }
+        function resetStopButton() {
+            var btn = document.getElementById('stopImpersonationBtn');
+            if (btn) btn.disabled = false;
+            if (window.SchoolKeeperI18n) SchoolKeeperI18n.apply();
+        }
         document.addEventListener('DOMContentLoaded', async function() {
             const userIdSelect = document.getElementById('userId');
             const impersonateForm = document.getElementById('impersonateForm');
             const errorAlert = document.getElementById('errorAlert');
             const errorMessage = document.getElementById('errorMessage');
             const impersonateBtn = document.getElementById('impersonateBtn');
+            const impersonateBtnLabel = document.getElementById('impersonateBtnLabel');
 
-            // Завантажуємо список користувачів
             try {
                 const { response, data } = await auth.apiRequest('/User?pageSize=1000');
                 if (response.ok && data.data) {
-                    userIdSelect.innerHTML = '<option value="">Оберіть користувача</option>';
+                    userIdSelect.innerHTML = '<option value="">' + skT('impersonate.selectPlaceholder', 'Оберіть користувача') + '</option>';
                     data.data.forEach(user => {
                         const option = document.createElement('option');
                         option.value = user.id;
-                        option.textContent = `${user.fullName} (${user.email}) - ${user.role}`;
+                        option.textContent = user.fullName + ' (' + user.email + ') - ' + user.role;
                         userIdSelect.appendChild(option);
                     });
                 } else {
-                    userIdSelect.innerHTML = '<option value="">Помилка завантаження користувачів</option>';
+                    userIdSelect.innerHTML = '<option value="">' + skT('impersonate.loadUsersError', 'Помилка завантаження користувачів') + '</option>';
                 }
             } catch (error) {
                 console.error('Error loading users:', error);
-                userIdSelect.innerHTML = '<option value="">Помилка завантаження користувачів</option>';
+                userIdSelect.innerHTML = '<option value="">' + skT('impersonate.loadUsersError', 'Помилка завантаження користувачів') + '</option>';
             }
 
-            // Обробка форми
             impersonateForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
                 const userId = userIdSelect.value;
                 if (!userId) {
-                    showError('Будь ласка, оберіть користувача');
+                    showError(skT('impersonate.pickUser', 'Будь ласка, оберіть користувача'));
                     return;
                 }
 
                 errorAlert.style.display = 'none';
                 impersonateBtn.disabled = true;
-                impersonateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Вхід...';
+                if (impersonateBtnLabel) impersonateBtnLabel.textContent = skT('impersonate.signingIn', 'Вхід...');
 
                 try {
                     const { response, data } = await auth.apiRequest('/auth/impersonate', {
@@ -128,31 +143,24 @@
                     });
 
                     if (response.ok && data.statusCode === 200) {
-                        // Зберігаємо дані користувача
                         localStorage.setItem('authToken', data.data.token);
                         localStorage.setItem('userEmail', data.data.email);
                         localStorage.setItem('userRole', data.data.role);
                         localStorage.setItem('userId', data.data.userId);
                         localStorage.setItem('isImpersonating', 'true');
                         localStorage.setItem('originalAdminId', data.data.originalAdminId || '');
-                        
-                        // Встановлюємо cookie
-                        document.cookie = `authToken=${data.data.token}; path=/; max-age=43200`;
-                        document.cookie = `isImpersonating=true; path=/; max-age=43200`;
-                        document.cookie = `originalAdminId=${data.data.originalAdminId || ''}; path=/; max-age=43200`;
-                        
-                        // Перенаправляємо на головну
+                        document.cookie = 'authToken=' + data.data.token + '; path=/; max-age=43200';
+                        document.cookie = 'isImpersonating=true; path=/; max-age=43200';
+                        document.cookie = 'originalAdminId=' + (data.data.originalAdminId || '') + '; path=/; max-age=43200';
                         window.location.href = '/';
                     } else {
-                        showError(data.message || 'Помилка входу від імені користувача');
-                        impersonateBtn.disabled = false;
-                        impersonateBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box-arrow-in-right me-2" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"/><path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/></svg>Увійти від імені користувача';
+                        showError(data.message || skT('impersonate.impersonateError', 'Помилка входу від імені користувача'));
+                        resetImpersonateButton();
                     }
                 } catch (error) {
                     console.error('Error impersonating:', error);
-                    showError('Помилка підключення до сервера');
-                    impersonateBtn.disabled = false;
-                    impersonateBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box-arrow-in-right me-2" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"/><path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/></svg>Увійти від імені користувача';
+                    showError(skT('impersonate.networkError', 'Помилка підключення до сервера'));
+                    resetImpersonateButton();
                 }
             });
 
@@ -161,15 +169,14 @@
                 errorAlert.style.display = 'block';
             }
 
-            // Обработка выхода из режима impersonation
             const stopImpersonationBtn = document.getElementById('stopImpersonationBtn');
+            const stopLabel = document.getElementById('stopImpersonationBtnLabel');
             if (stopImpersonationBtn) {
                 stopImpersonationBtn.addEventListener('click', async function() {
                     stopImpersonationBtn.disabled = true;
-                    stopImpersonationBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Вихід...';
+                    if (stopLabel) stopLabel.textContent = skT('impersonate.stopping', 'Вихід...');
 
                     try {
-                        // Получаем originalAdminId из localStorage
                         const originalAdminId = localStorage.getItem('originalAdminId');
                         const { response, data } = await auth.apiRequest('/auth/stop-impersonation', {
                             method: 'POST',
@@ -177,44 +184,42 @@
                         });
 
                         if (response.ok && data.statusCode === 200) {
-                            // Обновляем данные админа в localStorage
                             localStorage.setItem('authToken', data.data.token);
                             localStorage.setItem('userEmail', data.data.email);
                             localStorage.setItem('userRole', data.data.role);
                             localStorage.setItem('userId', data.data.userId);
                             localStorage.removeItem('isImpersonating');
                             localStorage.removeItem('originalAdminId');
-                            
-                            // Обновляем cookie
-                            document.cookie = `authToken=${data.data.token}; path=/; max-age=43200`;
+                            document.cookie = 'authToken=' + data.data.token + '; path=/; max-age=43200';
                             document.cookie = 'isImpersonating=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
                             document.cookie = 'originalAdminId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-                            
-                            // Перенаправляем на админ-панель
                             window.location.href = '/Admin';
                         } else {
-                            showError(data.message || 'Помилка виходу з режиму входу від імені');
-                            stopImpersonationBtn.disabled = false;
-                            stopImpersonationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle me-1" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>Вийти з режиму входу від імені';
+                            showError(data.message || skT('impersonate.stopError', 'Помилка виходу з режиму входу від імені'));
+                            resetStopButton();
                         }
                     } catch (error) {
                         console.error('Error stopping impersonation:', error);
-                        showError('Помилка підключення до сервера');
-                        stopImpersonationBtn.disabled = false;
-                        stopImpersonationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle me-1" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>Вийти з режиму входу від імені';
+                        showError(skT('impersonate.networkError', 'Помилка підключення до сервера'));
+                        resetStopButton();
                     }
                 });
             }
 
-            // Обработка параметра stop в URL (если был переход через OnPostStopImpersonationAsync)
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('stop') === 'true') {
-                // Автоматически вызываем выход из режима impersonation
-                if (stopImpersonationBtn) {
-                    stopImpersonationBtn.click();
-                }
+            if (urlParams.get('stop') === 'true' && stopImpersonationBtn) {
+                stopImpersonationBtn.click();
+            }
+        });
+        document.addEventListener('schoolkeeper:langchange', function () {
+            var el = document.getElementById('impersonateBtn');
+            if (el && !el.disabled && document.getElementById('impersonateBtnLabel')) {
+                document.getElementById('impersonateBtnLabel').textContent = skT('impersonate.submit', 'Увійти від імені користувача');
+            }
+            var st = document.getElementById('stopImpersonationBtn');
+            if (st && !st.disabled && document.getElementById('stopImpersonationBtnLabel')) {
+                document.getElementById('stopImpersonationBtnLabel').textContent = skT('impersonate.stop', 'Вийти з режиму входу від імені');
             }
         });
     </script>
 }
-

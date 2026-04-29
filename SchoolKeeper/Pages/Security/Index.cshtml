@@ -2,16 +2,17 @@
 @model SchoolKeeper.Pages.Security.IndexModel
 @{
     ViewData["Title"] = "Security Dashboard";
+    ViewData["I18nPage"] = "security";
 }
 
 <div class="container-fluid">
-    <h1 class="mb-4">Панель охорони</h1>
+    <h1 class="mb-4" data-i18n="security.title">Панель охорони</h1>
 
     <div class="row mb-4">
         <div class="col-md-3 mb-3">
             <div class="card text-white bg-info">
                 <div class="card-body">
-                    <h5 class="card-title">Всього пристроїв</h5>
+                    <h5 class="card-title" data-i18n="security.card.totalDevices">Всього пристроїв</h5>
                     <h2 class="mb-0">@Model.TotalDevices</h2>
                 </div>
             </div>
@@ -19,7 +20,7 @@
         <div class="col-md-3 mb-3">
             <div class="card text-white bg-success">
                 <div class="card-body">
-                    <h5 class="card-title">Активні пристрої</h5>
+                    <h5 class="card-title" data-i18n="security.card.activeDevices">Активні пристрої</h5>
                     <h2 class="mb-0">@Model.ActiveDevices</h2>
                 </div>
             </div>
@@ -27,7 +28,7 @@
         <div class="col-md-3 mb-3">
             <div class="card text-white bg-danger">
                 <div class="card-body">
-                    <h5 class="card-title">Неактивні пристрої</h5>
+                    <h5 class="card-title" data-i18n="security.card.inactiveDevices">Неактивні пристрої</h5>
                     <h2 class="mb-0">@Model.InactiveDevices</h2>
                 </div>
             </div>
@@ -35,7 +36,7 @@
         <div class="col-md-3 mb-3">
             <div class="card text-white bg-warning">
                 <div class="card-body">
-                    <h5 class="card-title">Активні інциденти</h5>
+                    <h5 class="card-title" data-i18n="security.card.activeIncidents">Активні інциденти</h5>
                     <h2 class="mb-0">@Model.ActiveIncidents</h2>
                 </div>
             </div>
@@ -46,7 +47,7 @@
         <div class="col-md-3 mb-3">
             <div class="card text-white bg-secondary">
                 <div class="card-body">
-                    <h5 class="card-title">Вирішені інциденти</h5>
+                    <h5 class="card-title" data-i18n="security.card.resolvedIncidents">Вирішені інциденти</h5>
                     <h2 class="mb-0">@Model.ResolvedIncidents</h2>
                 </div>
             </div>
@@ -54,7 +55,7 @@
         <div class="col-md-3 mb-3">
             <div class="card text-white bg-dark">
                 <div class="card-body">
-                    <h5 class="card-title">Звіти</h5>
+                    <h5 class="card-title" data-i18n="security.card.reports">Звіти</h5>
                     <h2 class="mb-0">@Model.TotalReports</h2>
                 </div>
             </div>
@@ -65,16 +66,15 @@
         <div class="col-md-6 mb-3">
             <div class="card">
                 <div class="card-header">
-                    <h5>Швидкі дії</h5>
+                    <h5 data-i18n="security.quickActions">Швидкі дії</h5>
                 </div>
                 <div class="card-body">
-                    <a asp-page="/Devices/Index" class="btn btn-info mb-2">Управління пристроями</a><br>
-                    <a asp-page="/Incidents/Index" class="btn btn-warning mb-2">Управління інцидентами</a><br>
-                    <a asp-page="/Reports/Create" class="btn btn-primary mb-2">Створити звіт</a><br>
-                    <a asp-page="/Reports/Index" class="btn btn-secondary mb-2">Перегляд звітів</a>
+                    <a asp-page="/Devices/Index" class="btn btn-info mb-2" data-i18n="security.btn.devices">Управління пристроями</a><br>
+                    <a asp-page="/Incidents/Index" class="btn btn-warning mb-2" data-i18n="security.btn.incidents">Управління інцидентами</a><br>
+                    <a asp-page="/Reports/Create" class="btn btn-primary mb-2" data-i18n="security.btn.createReport">Створити звіт</a><br>
+                    <a asp-page="/Reports/Index" class="btn btn-secondary mb-2" data-i18n="security.btn.viewReports">Перегляд звітів</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-

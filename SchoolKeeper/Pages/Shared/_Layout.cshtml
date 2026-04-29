@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body>
+<body data-i18n-page="@(ViewData["I18nPage"] as string ?? "")">
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
             <div class="container-fluid">
@@ -19,50 +19,62 @@
                     SchoolKeeper
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                        aria-expanded="false" aria-label="Відкрити меню" data-i18n-aria-label="nav.toggleNavAria">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item" id="devicesNavItem" style="display: none;">
-                            <a class="nav-link" asp-page="/Devices/Index">Пристрої</a>
+                            <a class="nav-link" asp-page="/Devices/Index" data-i18n="nav.devices">Пристрої</a>
                         </li>
                         <li class="nav-item" id="adminNavItem" style="display: none;">
-                            <a class="nav-link" asp-page="/Admin/Index">Адмін-панель</a>
+                            <a class="nav-link" asp-page="/Admin/Index" data-i18n="nav.admin">Адмін-панель</a>
                         </li>
                         <li class="nav-item" id="securityNavItem" style="display: none;">
-                            <a class="nav-link" asp-page="/Security/Index">Безпека</a>
+                            <a class="nav-link" asp-page="/Security/Index" data-i18n="nav.security">Безпека</a>
                         </li>
                         <li class="nav-item" id="teacherNavItem" style="display: none;">
-                            <a class="nav-link" asp-page="/Teacher/Index">Вчитель</a>
+                            <a class="nav-link" asp-page="/Teacher/Index" data-i18n="nav.teacher">Вчитель</a>
                         </li>
                         <li class="nav-item" id="parentNavItem" style="display: none;">
-                            <a class="nav-link" asp-page="/Parent/Index">Батьки</a>
+                            <a class="nav-link" asp-page="/Parent/Index" data-i18n="nav.parent">Батьки</a>
                         </li>
                         <li class="nav-item" id="studentNavItem" style="display: none;">
-                            <a class="nav-link" asp-page="/Student/Index">Студент</a>
+                            <a class="nav-link" asp-page="/Student/Index" data-i18n="nav.student">Студент</a>
                         </li>
                         <li class="nav-item" id="reportsNavItem" style="display: none;">
-                            <a class="nav-link" asp-page="/Reports/Index">Звіти</a>
+                            <a class="nav-link" asp-page="/Reports/Index" data-i18n="nav.reports">Звіти</a>
                         </li>
                     </ul>
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav align-items-lg-center">
+                        <li class="nav-item me-lg-2 d-flex align-items-center">
+                            <label for="textDirSelect" class="visually-hidden" data-i18n="nav.textDir">Напрям тексту</label>
+                            <select id="textDirSelect" class="form-select form-select-sm sk-text-dir-select" title="" data-i18n-title="nav.textDir" aria-describedby="textDirSelectHint">
+                                <option value="auto" data-i18n="nav.textDirAuto">Авто</option>
+                                <option value="ltr" data-i18n="nav.textDirLtr">Зліва направо</option>
+                                <option value="rtl" data-i18n="nav.textDirRtl">Справа наліво</option>
+                            </select>
+                            <span id="textDirSelectHint" class="visually-hidden" data-i18n="nav.textDirHint">Напрямок набору тексту в полях форми</span>
+                        </li>
+                        <li class="nav-item me-lg-2">
+                            <button type="button" class="btn btn-sm btn-outline-light" id="langToggleBtn" aria-pressed="false">English</button>
+                        </li>
                         <li class="nav-item" id="loginNavItem">
-                            <a class="nav-link" asp-page="/Login">Вхід</a>
+                            <a class="nav-link" asp-page="/Login" data-i18n="nav.login">Вхід</a>
                         </li>
                         <li class="nav-item" id="registerNavItem">
-                            <a class="nav-link" asp-page="/Register">Реєстрація</a>
+                            <a class="nav-link" asp-page="/Register" data-i18n="nav.register">Реєстрація</a>
                         </li>
                         <li class="nav-item dropdown" id="userDropdownNavItem" style="display: none;">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span id="userEmailNav"></span>
                                 <span class="badge bg-light text-dark ms-2" id="userRoleBadge"></span>
-                                <span class="badge bg-warning text-dark ms-2" id="impersonationBadge" style="display: none;">Від імені</span>
+                                <span class="badge bg-warning text-dark ms-2" id="impersonationBadge" style="display: none;" data-i18n="nav.impersonation">Від імені</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <li id="stopImpersonationItem" style="display: none;"><a class="dropdown-item" href="#" id="stopImpersonationLink">Вийти з режиму входу від імені</a></li>
+                                <li id="stopImpersonationItem" style="display: none;"><a class="dropdown-item" href="#" id="stopImpersonationLink" data-i18n="nav.stopImpersonation">Вийти з режиму входу від імені</a></li>
                                 <li><hr class="dropdown-divider" id="impersonationDivider" style="display: none;"></li>
-                                <li><a class="dropdown-item" href="#" id="logoutBtn">Вихід</a></li>
+                                <li><a class="dropdown-item" href="#" id="logoutBtn" data-i18n="nav.logout">Вихід</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -78,13 +90,14 @@
 
     <footer class="bg-light border-top mt-5 py-3">
         <div class="container-fluid text-center text-muted">
-            <small>&copy; 2024 SchoolKeeper. Система управління безпекою школи.</small>
+            <small>&copy; 2024 SchoolKeeper. <span data-i18n="footer.tagline">Система управління безпекою школи.</span></small>
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/i18n.js" asp-append-version="true"></script>
     <script src="~/js/auth.js" asp-append-version="true"></script>
     <script>
         // Обновление навигации при загрузке страницы
@@ -134,7 +147,11 @@
                     if (registerNavItem && registerNavItem.style) registerNavItem.style.display = 'none';
                     if (userDropdownNavItem && userDropdownNavItem.style) userDropdownNavItem.style.display = 'block';
                     if (userEmailNav) userEmailNav.textContent = userEmail;
-                    if (userRoleBadge) userRoleBadge.textContent = userRole || 'User';
+                    if (userRoleBadge) {
+                        userRoleBadge.textContent = (window.SchoolKeeperI18n && window.SchoolKeeperI18n.formatRole)
+                            ? window.SchoolKeeperI18n.formatRole(userRole || '')
+                            : (userRole || 'User');
+                    }
                     
                     // Проверяем режим impersonation - только для админов
                     const isImpersonating = localStorage.getItem('isImpersonating') === 'true';
@@ -255,21 +272,24 @@
                             // Перенаправляем на админ-панель
                             window.location.href = '/Admin';
                         } else {
-                            alert('Помилка виходу з режиму входу від імені: ' + (data.message || 'Невідома помилка'));
+                            var sk = window.SchoolKeeperI18n;
+                            alert((sk ? sk.t('nav.impersonationStopError') : 'Помилка виходу з режиму входу від імені: ') + (data.message || (sk ? sk.t('common.unknownError') : 'Невідома помилка')));
                         }
                     } catch (error) {
                         console.error('Error stopping impersonation:', error);
-                        alert('Помилка підключення до сервера');
+                        var sk2 = window.SchoolKeeperI18n;
+                        alert(sk2 ? sk2.t('nav.impersonationStopNetwork') : 'Помилка підключення до сервера');
                     }
                 });
             }
+
+                if (window.SchoolKeeperI18n) window.SchoolKeeperI18n.apply();
             } catch (error) {
                 // Игнорируем ошибки, если элементы не найдены
                 console.warn('Navigation update error:', error);
             }
         }
     </script>
-    <script src="~/js/auth.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

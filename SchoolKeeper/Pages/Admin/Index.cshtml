@@ -2,46 +2,37 @@
 @model SchoolKeeper.Pages.Admin.IndexModel
 @{
     ViewData["Title"] = "Панель адміністратора";
+    ViewData["I18nPage"] = "admin";
 }
 
 <div class="container-fluid" id="adminPanel">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">Панель адміністратора</h1>
+        <h1 class="mb-0" data-i18n="admin.title">Панель адміністратора</h1>
         <a href="/Admin/Impersonate" class="btn btn-outline-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-badge me-2" viewBox="0 0 16 16">
                 <path d="M6.5 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3zM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                 <path d="M4.5 0A2.5 2.5 0 0 0 2 2.5v14.5A1.5 1.5 0 0 0 3.5 18h9a1.5 1.5 0 0 0 1.5-1.5v-14.5A2.5 2.5 0 0 0 11.5 0h-7zM3 2.5A1.5 1.5 0 0 1 4.5 1h7A1.5 1.5 0 0 1 13 2.5v14.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V2.5z"/>
             </svg>
-            Вхід від імені користувача
+            <span data-i18n="admin.impersonate">Вхід від імені користувача</span>
         </a>
     </div>
 
     <!-- Навігаційні вкладки -->
     <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="school-tab" data-bs-toggle="tab" data-bs-target="#School" type="button" role="tab">
-                Школи
-            </button>
+            <button class="nav-link active" id="school-tab" data-bs-toggle="tab" data-bs-target="#School" type="button" role="tab" data-i18n="admin.tab.schools">Школи</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="user-tab" data-bs-toggle="tab" data-bs-target="#User" type="button" role="tab">
-                Користувачі
-            </button>
+            <button class="nav-link" id="user-tab" data-bs-toggle="tab" data-bs-target="#User" type="button" role="tab" data-i18n="admin.tab.users">Користувачі</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="device-tab" data-bs-toggle="tab" data-bs-target="#Device" type="button" role="tab">
-                Пристрої
-            </button>
+            <button class="nav-link" id="device-tab" data-bs-toggle="tab" data-bs-target="#Device" type="button" role="tab" data-i18n="admin.tab.devices">Пристрої</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="incident-tab" data-bs-toggle="tab" data-bs-target="#Incident" type="button" role="tab">
-                Інциденти
-            </button>
+            <button class="nav-link" id="incident-tab" data-bs-toggle="tab" data-bs-target="#Incident" type="button" role="tab" data-i18n="admin.tab.incidents">Інциденти</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="rept-tab" data-bs-toggle="tab" data-bs-target="#Rept" type="button" role="tab">
-                Звіти
-            </button>
+            <button class="nav-link" id="rept-tab" data-bs-toggle="tab" data-bs-target="#Rept" type="button" role="tab" data-i18n="admin.tab.reports">Звіти</button>
         </li>
     </ul>
 
@@ -50,26 +41,26 @@
         <!-- Вкладка Школи -->
         <div class="tab-pane fade show active" id="School" role="tabpanel">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Школи</h3>
-                <button class="btn btn-primary" onclick="AdminPanel.createItem('School')">Додати школу</button>
+                <h3 data-i18n="admin.schools.title">Школи</h3>
+                <button class="btn btn-primary" onclick="AdminPanel.createItem('School')" data-i18n="admin.schools.add">Додати школу</button>
             </div>
             <div class="table-responsive">
                 <table class="table table-striped table-hover" id="SchoolTable">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Назва</th>
-                            <th>Адреса</th>
-                            <th>Регіон</th>
-                            <th>Контактний номер</th>
-                            <th>Дії</th>
+                            <th data-i18n="admin.th.id">ID</th>
+                            <th data-i18n="admin.th.name">Назва</th>
+                            <th data-i18n="admin.th.address">Адреса</th>
+                            <th data-i18n="admin.th.region">Регіон</th>
+                            <th data-i18n="admin.th.contact">Контактний номер</th>
+                            <th data-i18n="admin.th.actions">Дії</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="loading-row">
                             <td colspan="6" class="text-center">
                                 <div class="spinner-border" role="status">
-                                    <span class="visually-hidden">Завантаження...</span>
+                                    <span class="visually-hidden" data-i18n="admin.loading">Завантаження...</span>
                                 </div>
                             </td>
                         </tr>
@@ -81,27 +72,27 @@
         <!-- Вкладка Користувачі -->
         <div class="tab-pane fade" id="User" role="tabpanel">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Користувачі</h3>
-                <button class="btn btn-primary" onclick="AdminPanel.createItem('User')">Додати користувача</button>
+                <h3 data-i18n="admin.users.title">Користувачі</h3>
+                <button class="btn btn-primary" onclick="AdminPanel.createItem('User')" data-i18n="admin.users.add">Додати користувача</button>
             </div>
             <div class="table-responsive">
                 <table class="table table-striped table-hover" id="UserTable">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>ПІБ</th>
-                            <th>Email</th>
-                            <th>Роль</th>
-                            <th>Телефон</th>
-                            <th>ID Школи</th>
-                            <th>Дії</th>
+                            <th data-i18n="admin.th.id">ID</th>
+                            <th data-i18n="admin.th.fullName">ПІБ</th>
+                            <th data-i18n="admin.th.email">Email</th>
+                            <th data-i18n="admin.th.role">Роль</th>
+                            <th data-i18n="admin.th.phone">Телефон</th>
+                            <th data-i18n="admin.th.schoolId">ID Школи</th>
+                            <th data-i18n="admin.th.actions">Дії</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="loading-row">
                             <td colspan="7" class="text-center">
                                 <div class="spinner-border" role="status">
-                                    <span class="visually-hidden">Завантаження...</span>
+                                    <span class="visually-hidden" data-i18n="admin.loading">Завантаження...</span>
                                 </div>
                             </td>
                         </tr>
@@ -113,27 +104,27 @@
         <!-- Вкладка Пристрої -->
         <div class="tab-pane fade" id="Device" role="tabpanel">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Пристрої</h3>
-                <button class="btn btn-primary" onclick="AdminPanel.createItem('Device')">Додати пристрій</button>
+                <h3 data-i18n="admin.devices.title">Пристрої</h3>
+                <button class="btn btn-primary" onclick="AdminPanel.createItem('Device')" data-i18n="admin.devices.add">Додати пристрій</button>
             </div>
             <div class="table-responsive">
                 <table class="table table-striped table-hover" id="DeviceTable">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Назва</th>
-                            <th>Тип</th>
-                            <th>Статус</th>
-                            <th>Розташування</th>
-                            <th>ID Школи</th>
-                            <th>Дії</th>
+                            <th data-i18n="admin.th.id">ID</th>
+                            <th data-i18n="admin.th.name">Назва</th>
+                            <th data-i18n="admin.th.type">Тип</th>
+                            <th data-i18n="admin.th.status">Статус</th>
+                            <th data-i18n="admin.lbl.location">Розташування</th>
+                            <th data-i18n="admin.th.schoolId">ID Школи</th>
+                            <th data-i18n="admin.th.actions">Дії</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="loading-row">
                             <td colspan="7" class="text-center">
                                 <div class="spinner-border" role="status">
-                                    <span class="visually-hidden">Завантаження...</span>
+                                    <span class="visually-hidden" data-i18n="admin.loading">Завантаження...</span>
                                 </div>
                             </td>
                         </tr>
@@ -145,30 +136,30 @@
         <!-- Вкладка Інциденти -->
         <div class="tab-pane fade" id="Incident" role="tabpanel">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Інциденти</h3>
-                <button class="btn btn-primary" onclick="AdminPanel.createItem('Incident')">Додати інцидент</button>
+                <h3 data-i18n="admin.incidents.title">Інциденти</h3>
+                <button class="btn btn-primary" onclick="AdminPanel.createItem('Incident')" data-i18n="admin.incidents.add">Додати інцидент</button>
             </div>
             <div class="table-responsive">
                 <table class="table table-striped table-hover" id="IncidentTable">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>ID Пристрою</th>
-                            <th>Повідомив</th>
-                            <th>Тип</th>
-                            <th>Серйозність</th>
-                            <th>Опис</th>
-                            <th>Дата</th>
-                            <th>Статус</th>
-                            <th>ID Школи</th>
-                            <th>Дії</th>
+                            <th data-i18n="admin.th.id">ID</th>
+                            <th data-i18n="admin.th.deviceId">ID Пристрою</th>
+                            <th data-i18n="admin.th.reportedBy">Повідомив</th>
+                            <th data-i18n="admin.th.type">Тип</th>
+                            <th data-i18n="admin.th.severity">Серйозність</th>
+                            <th data-i18n="admin.th.description">Опис</th>
+                            <th data-i18n="admin.th.date">Дата</th>
+                            <th data-i18n="admin.th.status">Статус</th>
+                            <th data-i18n="admin.th.schoolId">ID Школи</th>
+                            <th data-i18n="admin.th.actions">Дії</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="loading-row">
                             <td colspan="10" class="text-center">
                                 <div class="spinner-border" role="status">
-                                    <span class="visually-hidden">Завантаження...</span>
+                                    <span class="visually-hidden" data-i18n="admin.loading">Завантаження...</span>
                                 </div>
                             </td>
                         </tr>
@@ -180,28 +171,28 @@
         <!-- Вкладка Звіти -->
         <div class="tab-pane fade" id="Rept" role="tabpanel">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Звіти</h3>
-                <button class="btn btn-primary" onclick="AdminPanel.createItem('Rept')">Додати звіт</button>
+                <h3 data-i18n="admin.reports.title">Звіти</h3>
+                <button class="btn btn-primary" onclick="AdminPanel.createItem('Rept')" data-i18n="admin.reports.add">Додати звіт</button>
             </div>
             <div class="table-responsive">
                 <table class="table table-striped table-hover" id="ReptTable">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>ID Школи</th>
-                            <th>Створив</th>
-                            <th>Початок періоду</th>
-                            <th>Кінець періоду</th>
-                            <th>Резюме</th>
-                            <th>Дата створення</th>
-                            <th>Дії</th>
+                            <th data-i18n="admin.th.id">ID</th>
+                            <th data-i18n="admin.th.schoolId">ID Школи</th>
+                            <th data-i18n="admin.th.generatedBy">Створив</th>
+                            <th data-i18n="admin.th.periodStart">Початок періоду</th>
+                            <th data-i18n="admin.th.periodEnd">Кінець періоду</th>
+                            <th data-i18n="admin.th.summary">Резюме</th>
+                            <th data-i18n="admin.th.createdAt">Дата створення</th>
+                            <th data-i18n="admin.th.actions">Дії</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="loading-row">
                             <td colspan="8" class="text-center">
                                 <div class="spinner-border" role="status">
-                                    <span class="visually-hidden">Завантаження...</span>
+                                    <span class="visually-hidden" data-i18n="admin.loading">Завантаження...</span>
                                 </div>
                             </td>
                         </tr>
@@ -217,32 +208,32 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Школа</h5>
+                <h5 class="modal-title" data-i18n="admin.modal.school">Школа</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="SchoolForm">
                     <div class="mb-3">
-                        <label class="form-label">Назва *</label>
+                        <label class="form-label" data-i18n="admin.lbl.nameRequired">Назва *</label>
                         <input type="text" class="form-control" name="name" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Адреса</label>
+                        <label class="form-label" data-i18n="admin.lbl.address">Адреса</label>
                         <input type="text" class="form-control" name="address">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Регіон</label>
+                        <label class="form-label" data-i18n="admin.lbl.region">Регіон</label>
                         <input type="text" class="form-control" name="region">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Контактний номер</label>
+                        <label class="form-label" data-i18n="admin.lbl.contactNumber">Контактний номер</label>
                         <input type="text" class="form-control" name="contactNumber">
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('School')">Зберегти</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="admin.cancel">Скасувати</button>
+                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('School')" data-i18n="admin.save">Зберегти</button>
             </div>
         </div>
     </div>
@@ -253,25 +244,25 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Користувач</h5>
+                <h5 class="modal-title" data-i18n="admin.modal.user">Користувач</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="UserForm">
                     <div class="mb-3">
-                        <label class="form-label">ПІБ *</label>
+                        <label class="form-label" data-i18n="admin.lbl.fullNameRequired">ПІБ *</label>
                         <input type="text" class="form-control" name="fullName" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email *</label>
+                        <label class="form-label" data-i18n="admin.lbl.emailRequired">Email *</label>
                         <input type="email" class="form-control" name="email" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Пароль <small class="text-muted">(залиште порожнім, щоб не змінювати)</small></label>
+                        <label class="form-label"><span data-i18n="admin.lbl.passwordOptional">Пароль</span> <small class="text-muted" data-i18n="admin.lbl.passwordHint">(залиште порожнім, щоб не змінювати)</small></label>
                         <input type="password" class="form-control" name="password">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Роль *</label>
+                        <label class="form-label" data-i18n="admin.lbl.roleRequired">Роль *</label>
                         <select class="form-select" name="role" required>
                             <option value="Admin">Admin</option>
                             <option value="Security">Security</option>
@@ -281,20 +272,20 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Телефон</label>
+                        <label class="form-label" data-i18n="admin.lbl.phone">Телефон</label>
                         <input type="text" class="form-control" name="phoneNumber">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Школа *</label>
+                        <label class="form-label" data-i18n="admin.lbl.schoolRequired">Школа *</label>
                         <select class="form-select" name="schoolId" required>
-                            <option value="">Завантаження...</option>
+                            <option value="" data-i18n="admin.loading">Завантаження...</option>
                         </select>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('User')">Зберегти</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="admin.cancel">Скасувати</button>
+                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('User')" data-i18n="admin.save">Зберегти</button>
             </div>
         </div>
     </div>
@@ -305,17 +296,17 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Пристрій</h5>
+                <h5 class="modal-title" data-i18n="admin.modal.device">Пристрій</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="DeviceForm">
                     <div class="mb-3">
-                        <label class="form-label">Назва *</label>
+                        <label class="form-label" data-i18n="admin.lbl.deviceNameRequired">Назва *</label>
                         <input type="text" class="form-control" name="deviceName" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Тип *</label>
+                        <label class="form-label" data-i18n="admin.lbl.deviceTypeRequired">Тип *</label>
                         <select class="form-select" name="deviceType" required>
                             <option value="MotionSensor">MotionSensor</option>
                             <option value="AlarmButton">AlarmButton</option>
@@ -323,7 +314,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Статус *</label>
+                        <label class="form-label" data-i18n="admin.lbl.deviceStatusRequired">Статус *</label>
                         <select class="form-select" name="status" required>
                             <option value="Active">Active</option>
                             <option value="Inactive">Inactive</option>
@@ -331,20 +322,20 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Розташування</label>
+                        <label class="form-label" data-i18n="admin.lbl.location">Розташування</label>
                         <input type="text" class="form-control" name="location">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Школа *</label>
+                        <label class="form-label" data-i18n="admin.lbl.schoolRequired">Школа *</label>
                         <select class="form-select" name="schoolId" required>
-                            <option value="">Завантаження...</option>
+                            <option value="" data-i18n="admin.loading">Завантаження...</option>
                         </select>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('Device')">Зберегти</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="admin.cancel">Скасувати</button>
+                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('Device')" data-i18n="admin.save">Зберегти</button>
             </div>
         </div>
     </div>
@@ -355,29 +346,29 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Інцидент</h5>
+                <h5 class="modal-title" data-i18n="admin.modal.incident">Інцидент</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="IncidentForm">
                     <div class="mb-3">
-                        <label class="form-label">Пристрій *</label>
+                        <label class="form-label" data-i18n="admin.lbl.deviceRequired">Пристрій *</label>
                         <select class="form-select" name="deviceId" required>
-                            <option value="">Завантаження...</option>
+                            <option value="" data-i18n="admin.loading">Завантаження...</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Повідомив *</label>
+                        <label class="form-label" data-i18n="admin.lbl.reportedByRequired">Повідомив *</label>
                         <select class="form-select" name="reportedBy" required>
-                            <option value="">Завантаження...</option>
+                            <option value="" data-i18n="admin.loading">Завантаження...</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Тип інциденту *</label>
+                        <label class="form-label" data-i18n="admin.lbl.incidentTypeRequired">Тип інциденту *</label>
                         <input type="text" class="form-control" name="incidentType" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Серйозність *</label>
+                        <label class="form-label" data-i18n="admin.lbl.severityRequired">Серйозність *</label>
                         <select class="form-select" name="severity" required>
                             <option value="Low">Low</option>
                             <option value="Medium">Medium</option>
@@ -386,39 +377,39 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Опис</label>
+                        <label class="form-label" data-i18n="admin.lbl.description">Опис</label>
                         <textarea class="form-control" name="description" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Дата та час</label>
+                        <label class="form-label" data-i18n="admin.lbl.dateTime">Дата та час</label>
                         <input type="datetime-local" class="form-control" name="timestamp">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Статус *</label>
+                        <label class="form-label" data-i18n="admin.lbl.statusRequired">Статус *</label>
                         <select class="form-select" name="status" required>
                             <option value="Active">Active</option>
                             <option value="Resolved">Resolved</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Школа *</label>
+                        <label class="form-label" data-i18n="admin.lbl.schoolRequired">Школа *</label>
                         <select class="form-select" name="schoolId" required>
-                            <option value="">Завантаження...</option>
+                            <option value="" data-i18n="admin.loading">Завантаження...</option>
                         </select>
                     </div>
                     
                     <!-- Секция для отображения участников инцидента -->
                     <div class="mb-3" id="incidentUsersSection" style="display: none;">
-                        <label class="form-label">Учасники інциденту</label>
+                        <label class="form-label" data-i18n="admin.lbl.incidentParticipants">Учасники інциденту</label>
                         <div id="incidentUsersList" class="border rounded p-2" style="max-height: 200px; overflow-y: auto;">
-                            <p class="text-muted mb-0">Завантаження...</p>
+                            <p class="text-muted mb-0" data-i18n="admin.loading">Завантаження...</p>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('Incident')">Зберегти</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="admin.cancel">Скасувати</button>
+                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('Incident')" data-i18n="admin.save">Зберегти</button>
             </div>
         </div>
     </div>
@@ -429,44 +420,44 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Звіт</h5>
+                <h5 class="modal-title" data-i18n="admin.modal.rept">Звіт</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="ReptForm">
                     <div class="mb-3">
-                        <label class="form-label">Школа *</label>
+                        <label class="form-label" data-i18n="admin.lbl.schoolRequired">Школа *</label>
                         <select class="form-select" name="schoolId" required>
-                            <option value="">Завантаження...</option>
+                            <option value="" data-i18n="admin.loading">Завантаження...</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Створив *</label>
+                        <label class="form-label" data-i18n="admin.lbl.generatedByRequired">Створив *</label>
                         <select class="form-select" name="generatedBy" required>
-                            <option value="">Завантаження...</option>
+                            <option value="" data-i18n="admin.loading">Завантаження...</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Початок періоду *</label>
+                        <label class="form-label" data-i18n="admin.lbl.periodStartRequired">Початок періоду *</label>
                         <input type="date" class="form-control" name="periodStart" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Кінець періоду *</label>
+                        <label class="form-label" data-i18n="admin.lbl.periodEndRequired">Кінець періоду *</label>
                         <input type="date" class="form-control" name="periodEnd" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Резюме</label>
+                        <label class="form-label" data-i18n="admin.lbl.summary">Резюме</label>
                         <textarea class="form-control" name="summary" rows="4"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Дата створення</label>
+                        <label class="form-label" data-i18n="admin.lbl.generatedOn">Дата створення</label>
                         <input type="datetime-local" class="form-control" name="generatedOn">
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('Rept')">Зберегти</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="admin.cancel">Скасувати</button>
+                <button type="button" class="btn btn-primary" onclick="AdminPanel.saveForm('Rept')" data-i18n="admin.save">Зберегти</button>
             </div>
         </div>
     </div>

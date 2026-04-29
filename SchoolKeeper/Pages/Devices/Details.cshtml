@@ -2,39 +2,39 @@
 @model SchoolKeeper.Pages.Devices.DetailsModel
 @{
     ViewData["Title"] = "Деталі пристрою";
+    ViewData["I18nPage"] = "deviceDetails";
 }
 
 <div class="container">
-    <h2>Деталі пристрою</h2>
+    <h2 data-i18n="devices.detailsTitle">Деталі пристрою</h2>
 
     <div class="card">
         <div class="card-body">
             <dl class="row">
-                <dt class="col-sm-3">Назва:</dt>
+                <dt class="col-sm-3" data-i18n="devices.dt.name">Назва:</dt>
                 <dd class="col-sm-9">@Model.Device.DeviceName</dd>
 
-                <dt class="col-sm-3">Тип:</dt>
+                <dt class="col-sm-3" data-i18n="devices.dt.type">Тип:</dt>
                 <dd class="col-sm-9">@Model.Device.DeviceType</dd>
 
-                <dt class="col-sm-3">Статус:</dt>
+                <dt class="col-sm-3" data-i18n="devices.dt.status">Статус:</dt>
                 <dd class="col-sm-9">
                     <span class="badge @(Model.Device.Status == SchoolKeeper.Models.Enums.DeviceStatus.Active ? "bg-success" : "bg-danger")">
-                        @Model.Device.Status
+                        <span data-i18n="enum.DeviceStatus.@Model.Device.Status">@Model.Device.Status</span>
                     </span>
                 </dd>
 
-                <dt class="col-sm-3">Розташування:</dt>
+                <dt class="col-sm-3" data-i18n="devices.dt.location">Розташування:</dt>
                 <dd class="col-sm-9">@Model.Device.Location</dd>
             </dl>
         </div>
     </div>
 
     <div class="mt-3">
-        <a asp-page="Index" class="btn btn-secondary">Назад до списку</a>
+        <a asp-page="Index" class="btn btn-secondary" data-i18n="common.backToList">Назад до списку</a>
         @if (Model.CanEdit)
         {
-            <a asp-page="Edit" asp-route-id="@Model.Device.Id" class="btn btn-warning">Редагувати</a>
+            <a asp-page="Edit" asp-route-id="@Model.Device.Id" class="btn btn-warning" data-i18n="common.edit">Редагувати</a>
         }
     </div>
 </div>
-

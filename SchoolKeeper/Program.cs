@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -10,9 +9,8 @@ using SchoolKeeper.Middleware;
 using SchoolKeeper.Models.Enums;
 using SchoolKeeper.Services;
 using Sonar.Infrastructure.Repository;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +18,11 @@ builder.Services.AddDbContext<SchoolKeeperDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection") ??
                       throw new InvalidOperationException("Connection string 'DefaultConnection' not found.")));
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(o =>
+    {
+        o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
 builder.Services.AddRazorPages();
 
 // Swagger
@@ -84,7 +86,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
     };
-    
+
     // Для Razor Pages читаем токен из cookie
     options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
     {
@@ -104,7 +106,7 @@ builder.Services.AddAuthentication(options =>
             {
                 context.Token = cookieToken;
             }
-            
+
             return Task.CompletedTask;
         },
         OnChallenge = context =>
@@ -124,7 +126,7 @@ builder.Services.AddAuthentication(options =>
                 context.Response.Cookies.Delete("authToken");
                 context.Response.Cookies.Delete("isImpersonating");
                 context.Response.Cookies.Delete("originalAdminId");
-                
+
                 // Перенаправляем на страницу логина
                 context.Response.Redirect("/Login");
                 context.HandleResponse();
@@ -153,10 +155,12 @@ builder.Services.AddScoped<SchoolKeeper.Services.IReportGenerationService, Schoo
 
 WebApplication app = builder.Build();
 
-// Seed database
+// Миграции Code First и сидирование
 using (var scope = app.Services.CreateScope())
 {
-    var seeder = new DbSeeder(scope.ServiceProvider.GetRequiredService<SchoolKeeperDbContext>());
+    var db = scope.ServiceProvider.GetRequiredService<SchoolKeeperDbContext>();
+    await db.Database.MigrateAsync();
+    var seeder = new DbSeeder(db);
     await seeder.SeedAsync();
 }
 
@@ -173,7 +177,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseStaticFiles(); // ВАЖНО: для обслуживания CSS, JS и других статических файлов
 app.UseRouting();
 app.UseCors("CorsPolicy");

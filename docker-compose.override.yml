@@ -1,0 +1,4 @@
+services:
+  schoolkeeper-app:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development

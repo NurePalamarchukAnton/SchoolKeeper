@@ -1,6 +1,25 @@
 // Admin Panel JavaScript Module
 // Управління адмін-панеллю з вкладками та CRUD операціями
 
+/** Витягує payload з ResponseWrapper (camelCase або PascalCase у JSON). */
+function unwrapApiData(data) {
+    if (data == null) return null;
+    if (Object.prototype.hasOwnProperty.call(data, 'data')) return data.data;
+    if (Object.prototype.hasOwnProperty.call(data, 'Data')) return data.Data;
+    return null;
+}
+
+function adminT(key, ukFallback) {
+    if (typeof window.SchoolKeeperI18n !== 'undefined' && window.SchoolKeeperI18n.t) {
+        return window.SchoolKeeperI18n.t(key);
+    }
+    return ukFallback;
+}
+
+function adminLocaleTag() {
+    return (typeof window.SchoolKeeperI18n !== 'undefined' && window.SchoolKeeperI18n.getLang() === 'en') ? 'en-US' : 'uk-UA';
+}
+
 const AdminPanel = {
     currentPage: {},
     pageSize: 50,
@@ -39,9 +58,12 @@ const AdminPanel = {
     // Завантаження шкіл для випадаючих списків
     async loadSchools() {
         try {
-            const { response, data } = await auth.apiRequest('/School?pageSize=1000');
-            if (response.ok && data.data) {
-                window.schoolsList = data.data;
+            const result = await auth.apiRequest('/School?pageSize=1000');
+            if (!result) return;
+            const { response, data } = result;
+            const list = unwrapApiData(data);
+            if (response.ok && list != null) {
+                window.schoolsList = Array.isArray(list) ? list : [];
             }
         } catch (error) {
             console.error('Error loading schools:', error);
@@ -54,23 +76,26 @@ const AdminPanel = {
         const loadingRow = tableBody.querySelector('.loading-row');
         
         if (!loadingRow) {
-            tableBody.innerHTML = '<tr class="loading-row"><td colspan="100%" class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Завантаження...</span></div></td></tr>';
+            tableBody.innerHTML = '<tr class="loading-row"><td colspan="100%" class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">' + adminT('admin.loading', 'Завантаження...') + '</span></div></td></tr>';
         }
         
         try {
-            const { response, data } = await auth.apiRequest(`/${entityType}?page=${page}&pageSize=${this.pageSize}`);
+            const result = await auth.apiRequest(`/${entityType}?page=${page}&pageSize=${this.pageSize}`);
+            if (!result) return;
+            const { response, data } = result;
+            const rows = unwrapApiData(data);
             
-            if (response.ok && data.data) {
-                this.renderTable(entityType, data.data);
+            if (response.ok && rows != null) {
+                this.renderTable(entityType, rows);
                 this.currentPage[entityType] = page;
             } else {
-                this.showError(`Помилка завантаження даних: ${data.message || 'Невідома помилка'}`);
-                tableBody.innerHTML = '<tr><td colspan="100%" class="text-center text-danger">Помилка завантаження даних</td></tr>';
+                this.showError(adminT('admin.err.loadPrefix', 'Помилка завантаження даних: ') + (data.message || data.Message || adminT('common.unknownError', 'Невідома помилка')));
+                tableBody.innerHTML = '<tr><td colspan="100%" class="text-center text-danger">' + adminT('admin.err.load', 'Помилка завантаження даних') + '</td></tr>';
             }
         } catch (error) {
             console.error(`Error loading ${entityType}:`, error);
-            this.showError('Помилка завантаження даних');
-            tableBody.innerHTML = '<tr><td colspan="100%" class="text-center text-danger">Помилка завантаження даних</td></tr>';
+            this.showError(adminT('admin.err.load', 'Помилка завантаження даних'));
+            tableBody.innerHTML = '<tr><td colspan="100%" class="text-center text-danger">' + adminT('admin.err.load', 'Помилка завантаження даних') + '</td></tr>';
         }
     },
     
@@ -80,7 +105,7 @@ const AdminPanel = {
         if (!tableBody) return;
         
         if (items.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="100%" class="text-center">Немає даних</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="100%" class="text-center">' + adminT('admin.emptyTable', 'Немає даних') + '</td></tr>';
             return;
         }
         
@@ -104,8 +129,8 @@ const AdminPanel = {
                         <td>${this.escapeHtml(item.region || '')}</td>
                         <td>${this.escapeHtml(item.contactNumber || '')}</td>
                         <td>
-                            <button class="btn btn-sm btn-warning" onclick="AdminPanel.editItem('${entityType}', ${item.id})">Редагувати</button>
-                            <button class="btn btn-sm btn-danger" onclick="AdminPanel.deleteItem('${entityType}', ${item.id})">Видалити</button>
+                            <button class="btn btn-sm btn-warning" onclick="AdminPanel.editItem('${entityType}', ${item.id})">${adminT('admin.edit', 'Редагувати')}</button>
+                            <button class="btn btn-sm btn-danger" onclick="AdminPanel.deleteItem('${entityType}', ${item.id})">${adminT('admin.delete', 'Видалити')}</button>
                         </td>
                     </tr>
                 `;
@@ -119,8 +144,8 @@ const AdminPanel = {
                         <td>${this.escapeHtml(item.phoneNumber || '')}</td>
                         <td>${item.schoolId || ''}</td>
                         <td>
-                            <button class="btn btn-sm btn-warning" onclick="AdminPanel.editItem('${entityType}', ${item.id})">Редагувати</button>
-                            <button class="btn btn-sm btn-danger" onclick="AdminPanel.deleteItem('${entityType}', ${item.id})">Видалити</button>
+                            <button class="btn btn-sm btn-warning" onclick="AdminPanel.editItem('${entityType}', ${item.id})">${adminT('admin.edit', 'Редагувати')}</button>
+                            <button class="btn btn-sm btn-danger" onclick="AdminPanel.deleteItem('${entityType}', ${item.id})">${adminT('admin.delete', 'Видалити')}</button>
                         </td>
                     </tr>
                 `;
@@ -135,13 +160,14 @@ const AdminPanel = {
                         <td>${this.escapeHtml(item.location || '')}</td>
                         <td>${item.schoolId || ''}</td>
                         <td>
-                            <button class="btn btn-sm btn-warning" onclick="AdminPanel.editItem('${entityType}', ${item.id})">Редагувати</button>
-                            <button class="btn btn-sm btn-danger" onclick="AdminPanel.deleteItem('${entityType}', ${item.id})">Видалити</button>
+                            <button class="btn btn-sm btn-warning" onclick="AdminPanel.editItem('${entityType}', ${item.id})">${adminT('admin.edit', 'Редагувати')}</button>
+                            <button class="btn btn-sm btn-danger" onclick="AdminPanel.deleteItem('${entityType}', ${item.id})">${adminT('admin.delete', 'Видалити')}</button>
                         </td>
                     </tr>
                 `;
             case 'Incident':
                 const incidentStatus = item.statusString || item.status || '';
+                const incLocale = adminLocaleTag();
                 return `
                     <tr>
                         <td>${item.id || ''}</td>
@@ -150,16 +176,17 @@ const AdminPanel = {
                         <td>${this.escapeHtml(item.incidentType || '')}</td>
                         <td><span class="badge bg-warning">${item.severityString || item.severity || ''}</span></td>
                         <td>${this.escapeHtml((item.description || '').substring(0, 50))}${(item.description || '').length > 50 ? '...' : ''}</td>
-                        <td>${new Date(item.timestamp).toLocaleString('uk-UA')}</td>
+                        <td>${new Date(item.timestamp).toLocaleString(incLocale)}</td>
                         <td><span class="badge ${incidentStatus === 'Active' ? 'bg-danger' : 'bg-success'}">${incidentStatus}</span></td>
                         <td>${item.schoolId || ''}</td>
                         <td>
-                            <button class="btn btn-sm btn-warning" onclick="AdminPanel.editItem('${entityType}', ${item.id})">Редагувати</button>
-                            <button class="btn btn-sm btn-danger" onclick="AdminPanel.deleteItem('${entityType}', ${item.id})">Видалити</button>
+                            <button class="btn btn-sm btn-warning" onclick="AdminPanel.editItem('${entityType}', ${item.id})">${adminT('admin.edit', 'Редагувати')}</button>
+                            <button class="btn btn-sm btn-danger" onclick="AdminPanel.deleteItem('${entityType}', ${item.id})">${adminT('admin.delete', 'Видалити')}</button>
                         </td>
                     </tr>
                 `;
             case 'Rept':
+                const reptLocale = adminLocaleTag();
                 return `
                     <tr>
                         <td>${item.id || ''}</td>
@@ -168,10 +195,10 @@ const AdminPanel = {
                         <td>${item.periodStart || ''}</td>
                         <td>${item.periodEnd || ''}</td>
                         <td>${this.escapeHtml((item.summary || '').substring(0, 50))}${(item.summary || '').length > 50 ? '...' : ''}</td>
-                        <td>${new Date(item.generatedOn).toLocaleString('uk-UA')}</td>
+                        <td>${new Date(item.generatedOn).toLocaleString(reptLocale)}</td>
                         <td>
-                            <button class="btn btn-sm btn-warning" onclick="AdminPanel.editItem('${entityType}', ${item.id})">Редагувати</button>
-                            <button class="btn btn-sm btn-danger" onclick="AdminPanel.deleteItem('${entityType}', ${item.id})">Видалити</button>
+                            <button class="btn btn-sm btn-warning" onclick="AdminPanel.editItem('${entityType}', ${item.id})">${adminT('admin.edit', 'Редагувати')}</button>
+                            <button class="btn btn-sm btn-danger" onclick="AdminPanel.deleteItem('${entityType}', ${item.id})">${adminT('admin.delete', 'Видалити')}</button>
                         </td>
                     </tr>
                 `;
@@ -181,7 +208,7 @@ const AdminPanel = {
     },
     
     // Відкриття модального вікна для створення
-    createItem(entityType) {
+    async createItem(entityType) {
         const modal = new bootstrap.Modal(document.getElementById(`${entityType}Modal`));
         const form = document.getElementById(`${entityType}Form`);
         if (form) {
@@ -198,33 +225,39 @@ const AdminPanel = {
             }
         }
         
-        this.populateFormDropdowns(entityType);
+        await this.populateFormDropdowns(entityType);
         modal.show();
     },
     
     // Відкриття модального вікна для редагування
     async editItem(entityType, id) {
         try {
-            const { response, data } = await auth.apiRequest(`/${entityType}/${id}`);
+            const result = await auth.apiRequest(`/${entityType}/${id}`);
+            if (!result) return;
+            const { response, data } = result;
+            const payload = unwrapApiData(data);
             
-            if (response.ok && data.data) {
+            if (response.ok && payload != null) {
                 const modal = new bootstrap.Modal(document.getElementById(`${entityType}Modal`));
                 const form = document.getElementById(`${entityType}Form`);
                 
                 if (form) {
-                    this.populateForm(form, data.data, entityType);
+                    this.populateForm(form, payload, entityType);
                     form.dataset.mode = 'edit';
                     form.dataset.id = id;
                 }
                 
-                this.populateFormDropdowns(entityType);
+                await this.populateFormDropdowns(entityType);
+                if (form) {
+                    this.populateForm(form, payload, entityType);
+                }
                 modal.show();
             } else {
-                this.showError('Помилка завантаження даних для редагування');
+                this.showError(adminT('admin.err.loadEdit', 'Помилка завантаження даних для редагування'));
             }
         } catch (error) {
             console.error('Error loading item for edit:', error);
-            this.showError('Помилка завантаження даних');
+            this.showError(adminT('admin.err.load', 'Помилка завантаження даних'));
         }
     },
     
@@ -333,74 +366,44 @@ const AdminPanel = {
             usersList.innerHTML = html;
         } else {
             usersSection.style.display = 'block';
-            usersList.innerHTML = '<p class="text-muted mb-0">Немає учасників, пов\'язаних з цим інцидентом</p>';
+            usersList.innerHTML = '<p class="text-muted mb-0">' + adminT('admin.empty.participants', 'Немає учасників, пов\'язаних з цим інцидентом') + '</p>';
         }
     },
     
-    // Отображение участников инцидента
-    displayIncidentUsers(users) {
-        const usersSection = document.getElementById('incidentUsersSection');
-        const usersList = document.getElementById('incidentUsersList');
-        
-        if (!usersSection || !usersList) return;
-        
-        if (users && users.length > 0) {
-            usersSection.style.display = 'block';
-            let html = '<div class="list-group list-group-flush">';
-            users.forEach(user => {
-                html += `
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>${this.escapeHtml(user.fullName)}</strong>
-                            <br>
-                            <small class="text-muted">${this.escapeHtml(user.email)}</small>
-                            <span class="badge bg-info ms-2">${this.escapeHtml(user.role)}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            usersList.innerHTML = html;
-        } else {
-            usersSection.style.display = 'block';
-            usersList.innerHTML = '<p class="text-muted mb-0">Немає учасників, пов\'язаних з цим інцидентом</p>';
-        }
-    },
-    
-    // Заповнення випадаючих списків
-    populateFormDropdowns(entityType) {
-        // Заповнюємо список шкіл
+    // Заповнення випадаючих списків (завжди дочекатися шкіл та FK з API)
+    async populateFormDropdowns(entityType) {
+        await this.loadSchools();
+        const schools = window.schoolsList || [];
         const schoolSelects = document.querySelectorAll(`#${entityType}Form select[name="schoolId"]`);
         schoolSelects.forEach(select => {
-            if (window.schoolsList) {
-                select.innerHTML = '<option value="">Оберіть школу</option>';
-                window.schoolsList.forEach(school => {
-                    select.innerHTML += `<option value="${school.id}">${this.escapeHtml(school.name)}</option>`;
-                });
-            }
+            select.innerHTML = '<option value="">' + adminT('admin.placeholder.selectSchool', 'Оберіть школу') + '</option>';
+            schools.forEach(school => {
+                select.innerHTML += `<option value="${school.id}">${this.escapeHtml(school.name)}</option>`;
+            });
         });
         
-        // Заповнюємо список користувачів для ReportedBy/GeneratedBy
         if (entityType === 'Incident' || entityType === 'Rept') {
-            this.loadUsersForDropdown(entityType);
+            await this.loadUsersForDropdown(entityType);
         }
         
-        // Заповнюємо список пристроїв для DeviceId
         if (entityType === 'Incident') {
-            this.loadDevicesForDropdown();
+            await this.loadDevicesForDropdown();
         }
     },
     
     // Завантаження користувачів для випадаючого списку
     async loadUsersForDropdown(entityType) {
         try {
-            const { response, data } = await auth.apiRequest('/User?pageSize=1000');
-            if (response.ok && data.data) {
+            const result = await auth.apiRequest('/User?pageSize=1000');
+            if (!result) return;
+            const { response, data } = result;
+            const users = unwrapApiData(data);
+            if (response.ok && users != null && Array.isArray(users)) {
                 const selectName = entityType === 'Incident' ? 'reportedBy' : 'generatedBy';
                 const select = document.querySelector(`#${entityType}Form select[name="${selectName}"]`);
                 if (select) {
-                    select.innerHTML = '<option value="">Оберіть користувача</option>';
-                    data.data.forEach(user => {
+                    select.innerHTML = '<option value="">' + adminT('admin.placeholder.selectUser', 'Оберіть користувача') + '</option>';
+                    users.forEach(user => {
                         select.innerHTML += `<option value="${user.id}">${this.escapeHtml(user.fullName)} (${user.email})</option>`;
                     });
                 }
@@ -413,12 +416,15 @@ const AdminPanel = {
     // Завантаження пристроїв для випадаючого списку
     async loadDevicesForDropdown() {
         try {
-            const { response, data } = await auth.apiRequest('/Device?pageSize=1000');
-            if (response.ok && data.data) {
+            const result = await auth.apiRequest('/Device?pageSize=1000');
+            if (!result) return;
+            const { response, data } = result;
+            const devices = unwrapApiData(data);
+            if (response.ok && devices != null && Array.isArray(devices)) {
                 const select = document.querySelector('#IncidentForm select[name="deviceId"]');
                 if (select) {
-                    select.innerHTML = '<option value="">Оберіть пристрій</option>';
-                    data.data.forEach(device => {
+                    select.innerHTML = '<option value="">' + adminT('admin.placeholder.selectDevice', 'Оберіть пристрій') + '</option>';
+                    devices.forEach(device => {
                         select.innerHTML += `<option value="${device.id}">${this.escapeHtml(device.deviceName)}</option>`;
                     });
                 }
@@ -538,51 +544,58 @@ const AdminPanel = {
             let response, result;
             
             if (mode === 'create') {
-                ({ response, data: result } = await auth.apiRequest(`/${entityType}`, {
+                const req = await auth.apiRequest(`/${entityType}`, {
                     method: 'POST',
                     body: JSON.stringify(data)
-                }));
+                });
+                if (!req) return;
+                ({ response, data: result } = req);
             } else {
-                ({ response, data: result } = await auth.apiRequest(`/${entityType}/${id}`, {
+                const req = await auth.apiRequest(`/${entityType}/${id}`, {
                     method: 'PUT',
                     body: JSON.stringify(data)
-                }));
+                });
+                if (!req) return;
+                ({ response, data: result } = req);
             }
             
             if (response.ok) {
-                this.showSuccess(mode === 'create' ? 'Запис успішно створено' : 'Запис успішно оновлено');
+                this.showSuccess(mode === 'create' ? adminT('admin.success.created', 'Запис успішно створено') : adminT('admin.success.updated', 'Запис успішно оновлено'));
                 const modal = bootstrap.Modal.getInstance(document.getElementById(`${entityType}Modal`));
                 if (modal) modal.hide();
                 this.loadTableData(entityType, this.currentPage[entityType] || 1);
             } else {
-                this.showError(result.message || 'Помилка збереження даних');
+                const msg = (result && (result.message || result.Message)) || adminT('admin.err.save', 'Помилка збереження даних');
+                this.showError(msg);
             }
         } catch (error) {
             console.error('Error saving form:', error);
-            this.showError('Помилка збереження даних');
+            this.showError(adminT('admin.err.save', 'Помилка збереження даних'));
         }
     },
     
     // Видалення запису
     async deleteItem(entityType, id) {
-        if (!confirm('Ви впевнені, що хочете видалити цей запис?')) {
+        if (!confirm(adminT('admin.confirmDelete', 'Ви впевнені, що хочете видалити цей запис?'))) {
             return;
         }
         
         try {
-            const { response, data } = await auth.apiRequest(`/${entityType}/${id}`, {
+            const result = await auth.apiRequest(`/${entityType}/${id}`, {
                 method: 'DELETE'
             });
+            if (!result) return;
+            const { response, data } = result;
             
             if (response.ok) {
-                this.showSuccess('Запис успішно видалено');
+                this.showSuccess(adminT('admin.success.deleted', 'Запис успішно видалено'));
                 this.loadTableData(entityType, this.currentPage[entityType] || 1);
             } else {
-                this.showError(data.message || 'Помилка видалення запису');
+                this.showError(data.message || data.Message || adminT('admin.err.delete', 'Помилка видалення запису'));
             }
         } catch (error) {
             console.error('Error deleting item:', error);
-            this.showError('Помилка видалення запису');
+            this.showError(adminT('admin.err.delete', 'Помилка видалення запису'));
         }
     },
     
@@ -640,6 +653,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('adminPanel')) {
         AdminPanel.init();
     }
+});
+
+// Після зміни мови перезавантажити активну таблицю (рядки генеруються з adminT)
+document.addEventListener('schoolkeeper:langchange', function () {
+    if (!document.getElementById('adminPanel')) return;
+    var activeTab = document.querySelector('#adminTabs .nav-link.active');
+    if (!activeTab) return;
+    var targetTab = activeTab.getAttribute('data-bs-target');
+    if (!targetTab) return;
+    var entityType = targetTab.replace('#', '');
+    AdminPanel.loadTableData(entityType, AdminPanel.currentPage[entityType] || 1);
 });
 
 // Експорт для глобального використання

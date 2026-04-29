@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SchoolKeeper.DTO;
+using SchoolKeeper.Extentions;
 using SchoolKeeper.Models.Enums;
 
 namespace SchoolKeeper.Services;
@@ -21,8 +22,8 @@ public class ReportGenerationService : IReportGenerationService
 
     public async Task<string> GenerateTeacherReportAsync(int schoolId, DateOnly periodStart, DateOnly periodEnd, int teacherId)
     {
-        var startDate = periodStart.ToDateTime(TimeOnly.MinValue);
-        var endDate = periodEnd.ToDateTime(TimeOnly.MaxValue);
+        var startDate = periodStart.ToUtcDateTimeStart();
+        var endDate = periodEnd.ToUtcDateTimeEnd();
 
         // Получаем статистику инцидентов для школы
         var incidents = await _context.Incidents
@@ -139,8 +140,8 @@ public class ReportGenerationService : IReportGenerationService
 
     public async Task<string> GenerateSecurityReportAsync(int schoolId, DateOnly periodStart, DateOnly periodEnd)
     {
-        var startDate = periodStart.ToDateTime(TimeOnly.MinValue);
-        var endDate = periodEnd.ToDateTime(TimeOnly.MaxValue);
+        var startDate = periodStart.ToUtcDateTimeStart();
+        var endDate = periodEnd.ToUtcDateTimeEnd();
 
         // Получаем статистику устройств
         var devices = await _context.Devices

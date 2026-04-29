@@ -12,8 +12,8 @@ using SchoolKeeper.Models.Enums;
 namespace SchoolKeeper.Migrations
 {
     [DbContext(typeof(SchoolKeeperDbContext))]
-    [Migration("20251129142644_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260421153639_PostgresProviderSwitch")]
+    partial class PostgresProviderSwitch
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -87,7 +87,7 @@ namespace SchoolKeeper.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
-                    b.Property<int>("DeviceId")
+                    b.Property<int?>("DeviceId")
                         .HasColumnType("integer")
                         .HasColumnName("device_id");
 
@@ -357,8 +357,7 @@ namespace SchoolKeeper.Migrations
                     b.HasOne("Device", "Device")
                         .WithMany("Incidents")
                         .HasForeignKey("DeviceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("User", "Reporter")
                         .WithMany("ReportedIncidents")

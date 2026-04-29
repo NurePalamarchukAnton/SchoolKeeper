@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SchoolKeeper.Abstractions.Interfaces.Repository;
 using SchoolKeeper.Authorization;
 using SchoolKeeper.DTO;
+using SchoolKeeper.Extentions;
 using SchoolKeeper.Models.Enums;
 using SchoolKeeper.Response;
 using SchoolKeeper.Services;
@@ -176,8 +177,8 @@ namespace SchoolKeeper.Controllers
             // Get incidents and devices for the period
             var incidentsQuery = _context.Incidents
                 .Where(i => i.SchoolId == targetSchoolId &&
-                           i.Timestamp >= dto.PeriodStart.ToDateTime(TimeOnly.MinValue) &&
-                           i.Timestamp <= dto.PeriodEnd.ToDateTime(TimeOnly.MaxValue))
+                           i.Timestamp >= dto.PeriodStart.ToUtcDateTimeStart() &&
+                           i.Timestamp <= dto.PeriodEnd.ToUtcDateTimeEnd())
                 .AsQueryable();
 
             var devicesQuery = _context.Devices
@@ -254,8 +255,8 @@ namespace SchoolKeeper.Controllers
             // Get related incidents and devices
             var incidents = await _context.Incidents
                 .Where(i => i.SchoolId == report.SchoolId &&
-                           i.Timestamp >= report.PeriodStart.ToDateTime(TimeOnly.MinValue) &&
-                           i.Timestamp <= report.PeriodEnd.ToDateTime(TimeOnly.MaxValue))
+                           i.Timestamp >= report.PeriodStart.ToUtcDateTimeStart() &&
+                           i.Timestamp <= report.PeriodEnd.ToUtcDateTimeEnd())
                 .Include(i => i.Device)
                 .Include(i => i.Reporter)
                 .ToListAsync();
@@ -268,6 +269,8 @@ namespace SchoolKeeper.Controllers
             {
                 case "csv":
                     return ExportToCsv(report, incidents, devices);
+                case "txt":
+                    return ExportToTxt(report, incidents, devices);
                 case "json":
                 default:
                     return ExportToJson(report, incidents, devices);
@@ -349,6 +352,135 @@ namespace SchoolKeeper.Controllers
 
             var bytes = System.Text.Encoding.UTF8.GetBytes(csv.ToString());
             return File(bytes, "text/csv", $"report_{report.Id}.csv");
+        }
+
+        private IActionResult ExportToTxt(Rept report, List<Incident> incidents, List<Device> devices)
+        {
+            var txt = new System.Text.StringBuilder();
+            
+            // Заголовок звіту
+            txt.AppendLine("=".PadRight(80, '='));
+            txt.AppendLine("ЗВІТ ПО СИСТЕМІ SCHOOLKEEPER".PadLeft(50));
+            txt.AppendLine("=".PadRight(80, '='));
+            txt.AppendLine();
+            
+            // Інформація про звіт
+            txt.AppendLine("ІНФОРМАЦІЯ ПРО ЗВІТ:");
+            txt.AppendLine($"  ID звіту: {report.Id}");
+            txt.AppendLine($"  Школа: {report.School?.Name ?? "Не вказано"}");
+            txt.AppendLine($"  Період: {report.PeriodStart:dd.MM.yyyy} - {report.PeriodEnd:dd.MM.yyyy}");
+            txt.AppendLine($"  Створено: {report.GeneratedOn:dd.MM.yyyy HH:mm:ss}");
+            txt.AppendLine($"  Автор: {report.Generator?.FullName ?? "Не вказано"}");
+            txt.AppendLine();
+            
+            // Статистика пристроїв
+            txt.AppendLine("СТАТИСТИКА ПРИСТРОЇВ:");
+            txt.AppendLine($"  Всього пристроїв: {devices.Count}");
+            txt.AppendLine($"  Активних: {devices.Count(d => d.Status == Models.Enums.DeviceStatus.Active)}");
+            txt.AppendLine($"  Неактивних: {devices.Count(d => d.Status == Models.Enums.DeviceStatus.Inactive)}");
+            txt.AppendLine($"  З помилками: {devices.Count(d => d.Status == Models.Enums.DeviceStatus.Error)}");
+            txt.AppendLine();
+            
+            if (devices.Any())
+            {
+                txt.AppendLine("  Розподіл за типами:");
+                var byType = devices.GroupBy(d => d.DeviceType);
+                foreach (var group in byType.OrderByDescending(g => g.Count()))
+                {
+                    txt.AppendLine($"    {group.Key}: {group.Count()}");
+                }
+                txt.AppendLine();
+                
+                txt.AppendLine("  Розподіл за локаціями:");
+                var byLocation = devices
+                    .Where(d => !string.IsNullOrEmpty(d.Location))
+                    .GroupBy(d => d.Location!);
+                foreach (var group in byLocation.OrderByDescending(g => g.Count()).Take(10))
+                {
+                    txt.AppendLine($"    {group.Key}: {group.Count()}");
+                }
+                txt.AppendLine();
+            }
+            
+            // Статистика інцидентів
+            txt.AppendLine("СТАТИСТИКА ІНЦИДЕНТІВ:");
+            txt.AppendLine($"  Всього інцидентів: {incidents.Count}");
+            txt.AppendLine($"  Активних: {incidents.Count(i => i.Status == Models.Enums.IncidentStatus.Active)}");
+            txt.AppendLine($"  Вирішених: {incidents.Count(i => i.Status == Models.Enums.IncidentStatus.Resolved)}");
+            txt.AppendLine();
+            
+            if (incidents.Any())
+            {
+                txt.AppendLine("  Розподіл за типами:");
+                var byType = incidents.GroupBy(i => i.IncidentType);
+                foreach (var group in byType.OrderByDescending(g => g.Count()))
+                {
+                    txt.AppendLine($"    {group.Key}: {group.Count()}");
+                }
+                txt.AppendLine();
+                
+                txt.AppendLine("  Розподіл за серйозністю:");
+                var bySeverity = incidents.GroupBy(i => i.Severity);
+                foreach (var group in bySeverity.OrderByDescending(g => g.Count()))
+                {
+                    txt.AppendLine($"    {group.Key}: {group.Count()}");
+                }
+                txt.AppendLine();
+            }
+            
+            // Детальний список пристроїв
+            if (devices.Any())
+            {
+                txt.AppendLine("ДЕТАЛЬНИЙ СПИСОК ПРИСТРОЇВ:");
+                txt.AppendLine("-".PadRight(80, '-'));
+                foreach (var device in devices.OrderBy(d => d.DeviceName))
+                {
+                    txt.AppendLine($"  ID: {device.Id}");
+                    txt.AppendLine($"  Назва: {device.DeviceName}");
+                    txt.AppendLine($"  Тип: {device.DeviceType}");
+                    txt.AppendLine($"  Статус: {device.Status}");
+                    txt.AppendLine($"  Локація: {device.Location ?? "Не вказано"}");
+                    txt.AppendLine();
+                }
+            }
+            
+            // Детальний список інцидентів
+            if (incidents.Any())
+            {
+                txt.AppendLine("ДЕТАЛЬНИЙ СПИСОК ІНЦИДЕНТІВ:");
+                txt.AppendLine("-".PadRight(80, '-'));
+                foreach (var incident in incidents.OrderByDescending(i => i.Timestamp))
+                {
+                    txt.AppendLine($"  ID: {incident.Id}");
+                    txt.AppendLine($"  Тип: {incident.IncidentType}");
+                    txt.AppendLine($"  Серйозність: {incident.Severity}");
+                    txt.AppendLine($"  Статус: {incident.Status}");
+                    txt.AppendLine($"  Час: {incident.Timestamp:dd.MM.yyyy HH:mm:ss}");
+                    txt.AppendLine($"  Пристрій: {incident.Device?.DeviceName ?? "Не вказано"}");
+                    txt.AppendLine($"  Автор: {incident.Reporter?.FullName ?? "Не вказано"}");
+                    if (!string.IsNullOrEmpty(incident.Description))
+                    {
+                        txt.AppendLine($"  Опис: {incident.Description}");
+                    }
+                    txt.AppendLine();
+                }
+            }
+            
+            // Підсумок
+            if (!string.IsNullOrEmpty(report.Summary))
+            {
+                txt.AppendLine("ПІДСУМОК:");
+                txt.AppendLine("-".PadRight(80, '-'));
+                txt.AppendLine(report.Summary);
+                txt.AppendLine();
+            }
+            
+            txt.AppendLine("=".PadRight(80, '='));
+            txt.AppendLine($"Звіт згенеровано: {DateTime.UtcNow:dd.MM.yyyy HH:mm:ss} UTC");
+            txt.AppendLine("=".PadRight(80, '='));
+
+            var bytes = System.Text.Encoding.UTF8.GetBytes(txt.ToString());
+            return File(bytes, "text/plain; charset=utf-8", $"report_{report.Id}.txt");
         }
     }
 
